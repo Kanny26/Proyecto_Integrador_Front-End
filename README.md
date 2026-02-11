@@ -1,4 +1,4 @@
-Integradores:
-Nicolas Rodriguez Pinzon
-Karol Stephany Moreno Becerra
-Diego Alexander Puerto Acosta
+Integradores: <br>
+Nicolas Rodriguez Pinzon <br>
+Karol Stephany Moreno Becerra <br>
+Diego Alexander Puerto Acosta <br>
