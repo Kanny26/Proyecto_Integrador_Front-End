@@ -1,4 +1,4 @@
 Integrantes:
-Nicolas Rodriguez Pinzon
-Karol Stephany Moreno Becerra
-Diego Alexander Puerto Acosta
+\nNicolas Rodriguez Pinzon
+\nKarol Stephany Moreno Becerra
+\nDiego Alexander Puerto Acosta
