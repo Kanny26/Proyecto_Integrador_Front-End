@@ -1,85 +1,276 @@
 /**
- * ============================================
- * EJERCICIO DE MANIPULACIÓN DEL DOM
- * ============================================
- * 
- * Objetivo: Aplicar conceptos del DOM para seleccionar elementos,
- * responder a eventos y crear nuevos elementos dinámicamente.
- * 
- * Autor: [Tu nombre aquí]
- * Fecha: [Fecha actual]
- * ============================================
+ * ==========================================================
+ * SISTEMA DE GESTIÓN DE TAREAS – MANIPULACIÓN DEL DOM
+ * ==========================================================
+ *
+ * Descripción General:
+ * Este módulo corresponde a la capa Frontend encargada de:
+ * - Interactuar con el DOM.
+ * - Capturar datos del usuario.
+ * - Preparar la comunicación con la API (Backend).
+ * - Gestionar el estado visual de la aplicación.
+ *
+ * Arquitectura:
+ * - Separación por casos de uso (use-case).
+ * - Comunicación con API REST mediante métodos HTTP.
+ * - Manipulación dinámica del DOM.
+ *
+ * Rol dentro del equipo:
+ * Este archivo representa la lógica principal del cliente
+ * (Frontend), conectando interfaz y backend.
+ * ==========================================================
  */
 
-// ============================================
-// CONFIGURACIÓN DE API LOCAL
-// ============================================
+
+// ==========================================================
+// IMPORTACIÓN DE CASOS DE USO (ARQUITECTURA MODULAR)
+// ==========================================================
+
+/**
+ * Se importa el caso de uso responsable de actualizar una tarea.
+ * 
+ * Este módulo ejecuta una petición HTTP tipo PUT hacia el backend,
+ * siguiendo principios de separación de responsabilidades:
+ * 
+ * - Este archivo controla la UI.
+ * - updateTarea.js controla la lógica de comunicación HTTP.
+ */
+import { actualizarTarea } from './use-case/updateTarea.js';
+
+
+// ==========================================================
+// CONFIGURACIÓN GLOBAL Y VARIABLES DE ESTADO
+// ==========================================================
+
+/**
+ * URL base de la API REST.
+ * 
+ * Todas las peticiones HTTP (GET, POST, PUT, DELETE)
+ * utilizarán esta base para construir los endpoints.
+ */
 const API_BASE_URL = 'http://localhost:3000';
 
-// ============================================
-// 1. SELECCIÓN DE ELEMENTOS DEL DOM
-// ============================================
+/**
+ * Variable de control para edición.
+ * 
+ * Cuando contiene un ID:
+ * - Significa que se está editando una tarea existente.
+ * - Se utilizará el método HTTP PUT.
+ * 
+ * Cuando es null:
+ * - Se está creando una nueva tarea.
+ * - Se utilizará el método HTTP POST.
+ */
+let editingTaskId = null;
 
-// Formulario
+
+// ==========================================================
+// 1. SELECCIÓN DE ELEMENTOS DEL DOM
+// ==========================================================
+
+/**
+ * En esta sección se capturan referencias del DOM.
+ * 
+ * Objetivo:
+ * - Evitar búsquedas repetidas en el documento.
+ * - Centralizar los elementos interactivos.
+ * - Mantener claridad estructural.
+ */
+
+
+// -----------------------------
+// Formulario principal
+// -----------------------------
+
+/**
+ * Formulario que dispara el evento submit.
+ * 
+ * Desde aquí se controlan:
+ * - Validaciones.
+ * - Envío de datos.
+ * - Diferenciación entre POST y PUT.
+ */
 const messageFormEl = document.getElementById('messageForm');
 
-// Campos de entrada
-const userIDInput    = document.getElementById('userID');
-const userNameInput  = document.getElementById('userName');
-const taskNameInput  = document.getElementById('taskName');
-const userTareaInput = document.getElementById('userTarea');
+
+// -----------------------------
+// Campos de entrada (Inputs)
+// -----------------------------
+
+/**
+ * Inputs que capturan los datos que serán enviados al backend.
+ * 
+ * Estos valores formarán el cuerpo (body) de las peticiones HTTP.
+ */
+const userIDInput     = document.getElementById('userID');
+const userNameInput   = document.getElementById('userName');
+const taskNameInput   = document.getElementById('taskName');
+const userTareaInput  = document.getElementById('userTarea');
 const taskStatusInput = document.getElementById('taskStatus');
 
+
+// -----------------------------
 // Botón de envío
+// -----------------------------
+
+/**
+ * Botón que ejecuta el envío del formulario.
+ * 
+ * Su comportamiento cambia dependiendo del estado:
+ * - Crear tarea → HTTP POST
+ * - Editar tarea → HTTP PUT
+ */
 const submitBtnEl = document.getElementById('submitBtn');
 
-// Elementos para mostrar errores
-const userIDError    = document.getElementById('userIDError');
-const userNameError  = document.getElementById('userNameError');
-const taskNameError  = document.getElementById('taskNameError');
-const taskStatusError = document.getElementById('taskStatusError');
-const userTareaError = document.getElementById('userTareaError');
 
-// Contenedor donde se mostrarán los mensajes
+// -----------------------------
+// Elementos para manejo de errores
+// -----------------------------
+
+/**
+ * Contenedores destinados a mostrar mensajes de validación.
+ * 
+ * Son parte de la capa de UX (Experiencia de Usuario).
+ * Permiten:
+ * - Validaciones previas al envío.
+ * - Evitar solicitudes HTTP innecesarias.
+ */
+const userIDError     = document.getElementById('userIDError');
+const userNameError   = document.getElementById('userNameError');
+const taskNameError   = document.getElementById('taskNameError');
+const taskStatusError = document.getElementById('taskStatusError');
+const userTareaError  = document.getElementById('userTareaError');
+
+
+// -----------------------------
+// Contenedor dinámico de tareas
+// -----------------------------
+
+/**
+ * Contenedor donde se renderizan dinámicamente
+ * las tareas obtenidas del backend.
+ * 
+ * Aquí se insertan elementos creados mediante:
+ * - document.createElement()
+ * - Manipulación directa del DOM
+ * 
+ * La información proviene generalmente de una
+ * petición HTTP GET.
+ */
 const messagesContainerEl = document.getElementById('messagesContainer');
 
-// Datalist para sugerencias de usuarios
+
+// -----------------------------
+// Datalist para autocompletado
+// -----------------------------
+
+/**
+ * Datalist que muestra sugerencias de usuarios.
+ * 
+ * Los datos se cargan mediante una petición HTTP GET
+ * hacia el endpoint de usuarios.
+ */
 const usersList = document.getElementById('usersList');
 
-// Estado vacío (mensaje que se muestra cuando no hay mensajes)
+
+// -----------------------------
+// Estado vacío
+// -----------------------------
+
+/**
+ * Elemento visual que se muestra cuando:
+ * - No existen tareas registradas.
+ * 
+ * Se controla dinámicamente según el conteo
+ * obtenido desde la API.
+ */
 const emptyStateEl = document.getElementById('emptyState');
 
-// Contador de mensajes
+
+// -----------------------------
+// Contador de tareas
+// -----------------------------
+
+/**
+ * Elemento que muestra el número total de tareas.
+ * 
+ * Se actualiza cada vez que:
+ * - Se realiza un GET
+ * - Se crea una tarea (POST)
+ * - Se elimina una tarea (DELETE)
+ */
 const messageCountEl = document.getElementById('messageCount');
 
-// Variable para almacenar el usuario actual
+
+// ==========================================================
+// VARIABLES DE ESTADO DE LA APLICACIÓN
+// ==========================================================
+
+/** Usuario actualmente seleccionado; Permite mantener consistencia entre:
+ * - Lo que se muestra en el input.
+ * - Lo que se enviará al backend.
+ */
 let currentUser = null;
 
-// Caché local de usuarios cargados desde la API (para el datalist)
+/**
+ * Caché local de usuarios; Mejora rendimiento:
+ * - Evita múltiples peticiones GET repetidas.
+ * - Permite búsquedas rápidas en memoria.
+ */
 let cachedUsers = [];
 
-// Variable para llevar el conteo de mensajes
+/**
+ * Contador total de tareas en memoria; Se sincroniza con:
+ * - Respuesta del backend (GET).
+ * - Operaciones CRUD realizadas.
+ */
 let totalMessagesCount = 0;
+// ==========================================================
+// 2. FUNCIONES AUXILIARES (UTILIDADES DEL FRONTEND)
+// ==========================================================
 
+/**
+ * Esta sección contiene funciones reutilizables que:
+ * - No realizan peticiones HTTP directamente.
+ * - No modifican la lógica principal del sistema.
+ * - Apoyan validaciones, formato de datos y experiencia de usuario.
+ * 
+ * Son funciones de apoyo que mantienen el código limpio,
+ * legible y desacoplado.
+ */
 
-// ============================================
-// 2. FUNCIONES AUXILIARES
-// ============================================
-
+/**
+ * Valida que un input no esté vacío, Se utiliza antes de ejecutar solicitudes HTTP (POST o PATCH), evitando enviar datos inválidos al backend.
+ * Retorna:
+  - true  → si el valor contiene texto válido
+  - false → si está vacío o contiene solo espacios
+ */
 function isValidInput(value) {
     return String(value).trim().length > 0;
 }
+
+// Muestra un mensaje de error en un elemento del DOM.
 
 function showError(errorElement, message) {
     if (!errorElement) return;
     errorElement.textContent = message;
 }
 
+//Limpia el mensaje de error visual.
+
 function clearError(errorElement) {
     if (!errorElement) return;
     errorElement.textContent = '';
 }
 
+
+/** Genera una marca de tiempo formateada.
+  Se utiliza para:
+  - Mostrar fecha de creación o actualización.
+  - Dar trazabilidad visual a cada tarea.
+  -No depende del backend.
+  - Es únicamente presentación en el cliente.
+ */
 function getCurrentTimestamp() {
     const now = new Date();
     const options = {
@@ -89,38 +280,57 @@ function getCurrentTimestamp() {
     return now.toLocaleDateString('es-ES', options);
 }
 
+// Genera iniciales a partir del nombre completo.Permite crear avatares dinámicos.
+ 
 function getInitials(name) {
     const parts = String(name).trim().split(/\s+/).filter(Boolean);
+
     if (parts.length === 0) return '';
     if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+
     return parts.map(p => p[0]).slice(0, 2).join('').toUpperCase();
 }
 
+/**
+ * Actualiza el contador de tareas.
+ Se ejecuta después de:
+ - HTTP GET  (cuando se cargan tareas)
+ - HTTP POST (cuando se crea una nueva)
+ - HTTP DELETE (cuando se elimina)
+ * Mantiene sincronizada la interfaz con el estado real.
+ */
 function updateMessageCount() {
     if (!messageCountEl) return;
-    messageCountEl.textContent = `${totalMessagesCount} Tarea${totalMessagesCount !== 1 ? 's' : ''}`;
+
+    messageCountEl.textContent =
+        `${totalMessagesCount} Tarea${totalMessagesCount !== 1 ? 's' : ''}`;
 }
+
+// Oculta el estado vacío cuando existen tareas.
 
 function hideEmptyState() {
     if (!emptyStateEl) return;
     emptyStateEl.classList.add('hidden');
 }
 
+// Muestra el estado vacío cuando no existen tareas.
+ 
 function showEmptyState() {
     if (!emptyStateEl) return;
     emptyStateEl.classList.remove('hidden');
 }
 
-/**
- * Rellena el datalist con sugerencias de nombre basadas en el documento ingresado.
- * Usa el caché local para no repetir llamadas a la API.
- */
 function populateUserSuggestions(documentNumber) {
     if (!usersList) return;
+
     usersList.innerHTML = '';
+
     if (!documentNumber) return;
 
-    const matches = cachedUsers.filter(u => String(u.documento).startsWith(documentNumber));
+    const matches = cachedUsers.filter(u =>
+        String(u.documento).startsWith(documentNumber)
+    );
+
     matches.forEach(u => {
         const opt = document.createElement('option');
         opt.value = u.nombre_completo;
@@ -129,9 +339,21 @@ function populateUserSuggestions(documentNumber) {
 }
 
 
-// ============================================
-// 3. FUNCIONES DE API - BASE DE DATOS LOCAL
-// ============================================
+//Muestra una notificación temporal en pantalla.
+
+function mostrarNotificacion(mensaje) {
+    const notif = document.createElement('div');
+    notif.className = 'notification';
+    notif.textContent = mensaje;
+
+    document.body.appendChild(notif);
+
+    // Animación de salida automática
+    setTimeout(() => {
+        notif.classList.add('notification--hide');
+        setTimeout(() => notif.remove(), 300);
+    }, 3000);
+}
 
 /**
  * Busca un usuario por número de documento en la API local.
@@ -157,9 +379,8 @@ async function buscarUsuarioPorDocumento(documento) {
     }
 }
 
-/**
- * Registra una nueva tarea en la base de datos local.
- */
+// Registra una nueva tarea en la base de datos local.
+
 async function asignar_tarea(tarea) {
     try {
         console.log('Enviando tarea a la API:', tarea);
@@ -181,66 +402,61 @@ async function asignar_tarea(tarea) {
         throw error;
     }
 }
-
-
 // ============================================
 // 4. GESTIÓN DE USUARIOS
 // ============================================
 
-/**
- * Muestra los datos del usuario encontrado en la interfaz
- * y habilita el formulario de tareas.
- */
+// Muestra en la interfaz los datos del usuario encontrado (respuesta HTTP GET)
+// y habilita el formulario de creación de tareas.
 function mostrarDatosUsuario(usuario) {
     if (userNameInput) {
         userNameInput.value = usuario.nombre_completo;
-        userNameInput.disabled = true;
+        userNameInput.disabled = true; // Se bloquea para evitar inconsistencias
     }
-    currentUser = usuario;
-    habilitarFormularioTareas();
+
+    currentUser = usuario; // Se guarda el usuario activo en memoria
+    habilitarFormularioTareas(); // Se permite crear tareas solo si el usuario existe
+
     console.log('Datos del usuario mostrados:', usuario.nombre_completo);
 }
 
-/**
- * Limpia los datos del usuario y deshabilita el formulario de tareas.
- */
+// Limpia el usuario actual y bloquea el formulario de tareas
+// Se ejecuta cuando el usuario no existe o se cambia el documento.
 function limpiarDatosUsuario() {
     if (userNameInput) {
         userNameInput.value = '';
         userNameInput.disabled = false;
     }
-    currentUser = null;
-    deshabilitarFormularioTareas();
+
+    currentUser = null; // Se elimina el estado del usuario actual
+    deshabilitarFormularioTareas(); // Se evita crear tareas sin usuario válido
 }
 
-/**
- * Habilita los campos de tarea solo cuando el usuario existe.
- */
+// Habilita inputs de tarea cuando existe un usuario válido
 function habilitarFormularioTareas() {
     if (taskNameInput)  taskNameInput.disabled  = false;
     if (taskStatusInput) taskStatusInput.disabled = false;
     if (userTareaInput) userTareaInput.disabled  = false;
+
     console.log('Formulario de tareas habilitado');
 }
 
-/**
- * Deshabilita y limpia el formulario de tareas.
- */
+// Deshabilita y limpia los campos de tarea para evitar registros inválidos
 function deshabilitarFormularioTareas() {
     if (taskNameInput)  { taskNameInput.disabled = true;  taskNameInput.value  = ''; }
     if (taskStatusInput){ taskStatusInput.disabled = true; taskStatusInput.value = 'activa'; }
     if (userTareaInput) { userTareaInput.disabled = true;  userTareaInput.value  = ''; }
 }
 
-/**
- * Consulta la API y muestra/oculta datos del usuario según el resultado.
- */
+// Realiza la consulta al backend para buscar un usuario por documento (HTTP GET)
+// Controla errores de conexión y validación de existencia.
 async function buscar_mostrar_usuario(documento) {
     try {
         clearError(userIDError);
         clearError(userNameError);
 
-        const usuario = await buscarUsuarioPorDocumento(documento);
+        const usuario = await buscarUsuarioPorDocumento(documento); 
+        // buscarUsuarioPorDocumento ejecuta un GET a la API
 
         if (usuario) {
             mostrarDatosUsuario(usuario);
@@ -251,9 +467,15 @@ async function buscar_mostrar_usuario(documento) {
             userIDInput.classList.add('error');
             return false;
         }
+
     } catch (error) {
         console.error('Error en búsqueda:', error);
-        showError(userIDError, 'Error al conectar con el servidor. Verifica que json-server esté corriendo.');
+
+        showError(
+            userIDError,
+            'Error al conectar con el servidor. Verifica que json-server esté corriendo.'
+        );
+
         return false;
     }
 }
@@ -263,87 +485,109 @@ async function buscar_mostrar_usuario(documento) {
 // 5. VALIDACIÓN DEL FORMULARIO
 // ============================================
 
+// Valida datos antes de ejecutar POST (crear) o PUT (actualizar)
+// Evita enviar solicitudes HTTP con datos inválidos.
 function validateForm() {
+
     let isValid = true;
 
-    const idVal       = userIDInput    ? userIDInput.value.trim()    : '';
-    const nameVal     = userNameInput  ? userNameInput.value.trim()  : '';
-    const taskTitleVal = taskNameInput ? taskNameInput.value.trim()  : '';
-    const taskStatusVal = taskStatusInput ? taskStatusInput.value    : '';
-    const taskDescVal = userTareaInput ? userTareaInput.value.trim() : '';
+    // Se capturan valores actuales del formulario
+    const idVal        = userIDInput    ? userIDInput.value.trim()    : '';
+    const nameVal      = userNameInput  ? userNameInput.value.trim()  : '';
+    const taskTitleVal = taskNameInput  ? taskNameInput.value.trim()  : '';
+    const taskStatusVal= taskStatusInput? taskStatusInput.value       : '';
+    const taskDescVal  = userTareaInput ? userTareaInput.value.trim() : '';
 
-    // Limpiar errores previos
-    clearError(userIDError); clearError(userNameError);
-    clearError(taskNameError); clearError(taskStatusError); clearError(userTareaError);
+    // Limpieza previa de errores visuales
+    clearError(userIDError); 
+    clearError(userNameError);
+    clearError(taskNameError); 
+    clearError(taskStatusError); 
+    clearError(userTareaError);
 
-    userIDInput    && userIDInput.classList.remove('error');
-    userNameInput  && userNameInput.classList.remove('error');
-    taskNameInput  && taskNameInput.classList.remove('error');
+    userIDInput     && userIDInput.classList.remove('error');
+    userNameInput   && userNameInput.classList.remove('error');
+    taskNameInput   && taskNameInput.classList.remove('error');
     taskStatusInput && taskStatusInput.classList.remove('error');
-    userTareaInput && userTareaInput.classList.remove('error');
+    userTareaInput  && userTareaInput.classList.remove('error');
 
-    // Validar documento
-    if (!isValidInput(idVal)) {
-        showError(userIDError, 'Número de documento requerido');
-        userIDInput.classList.add('error');
-        isValid = false;
-    } else if (!/^\d+$/.test(idVal)) {
-        showError(userIDError, 'El documento debe contener solo números');
-        userIDInput.classList.add('error');
-        isValid = false;
+
+    // Si NO estamos editando → flujo de creación (HTTP POST)
+    if (!editingTaskId) {
+
+        // Validación de documento
+        if (!isValidInput(idVal)) {
+            showError(userIDError, 'Número de documento requerido');
+            userIDInput.classList.add('error');
+            isValid = false;
+
+        } else if (!/^\d+$/.test(idVal)) { // Validación con expresión regular
+            showError(userIDError, 'El documento debe contener solo números');
+            userIDInput.classList.add('error');
+            isValid = false;
+        }
+
+        // Debe existir usuario previamente consultado vía GET
+        if (!currentUser) {
+            showError(userIDError, 'Debe buscar un usuario válido primero');
+            userIDInput.classList.add('error');
+            isValid = false;
+        }
+
+        if (!isValidInput(nameVal)) {
+            showError(userNameError, 'Nombre de usuario requerido');
+            userNameInput.classList.add('error');
+            isValid = false;
+        }
     }
 
-    // Validar que existe usuario consultado
-    if (!currentUser) {
-        showError(userIDError, 'Debe buscar un usuario válido primero');
-        userIDInput.classList.add('error');
-        isValid = false;
-    }
-
-    // Validar nombre
-    if (!isValidInput(nameVal)) {
-        showError(userNameError, 'Nombre de usuario requerido');
-        userNameInput.classList.add('error');
-        isValid = false;
-    }
-
-    // Validar título de tarea
+    // Validación del nombre de la tarea
     if (!isValidInput(taskTitleVal)) {
         showError(taskNameError, 'Nombre de la tarea requerido');
         taskNameInput.classList.add('error');
         isValid = false;
     }
 
-    // Validar estado
+    // Validación del estado (control de dominio)
     if (!['activa', 'inactiva'].includes(taskStatusVal)) {
         showError(taskStatusError, 'Estado inválido');
         taskStatusInput.classList.add('error');
         isValid = false;
     }
 
-    // Validar descripción
+    // Validación de descripción
     if (!isValidInput(taskDescVal)) {
         showError(userTareaError, 'Descripción de la tarea requerida');
         userTareaInput.classList.add('error');
         isValid = false;
     }
 
-    return isValid;
+    return isValid; // Si es true → se permite ejecutar POST o PUT
 }
-
-
 // ============================================
 // 6. CREACIÓN DE ELEMENTOS
 // ============================================
 
-function createMessageElement(userID, userName, taskTitle, taskDesc, status, storedFecha) {
-    const card = document.createElement('div'); card.className = 'message-card';
-    const header = document.createElement('div'); header.className = 'message-card__header';
-    const userWrap = document.createElement('div'); userWrap.className = 'message-card__user';
+// Construye dinámicamente una tarjeta de tarea en el DOM.
+// No usa innerHTML → evita riesgos y mantiene control estructural.
+// Representa visualmente un registro obtenido o creado vía API (GET o POST).
+function createMessageElement(taskId, userID, userName, taskTitle, taskDesc, status, storedFecha, documento) {
+
+    const card = document.createElement('div');
+    card.className = 'message-card';
+    card.dataset.id = taskId;          // Referencia para operaciones PUT o DELETE
+    card.dataset.documento = documento || '';
+
+    // Header: usuario + fecha
+    const header = document.createElement('div'); 
+    header.className = 'message-card__header';
+
+    const userWrap = document.createElement('div'); 
+    userWrap.className = 'message-card__user';
 
     const avatar = document.createElement('div');
     avatar.className = 'message-card__avatar';
-    avatar.textContent = getInitials(userName);
+    avatar.textContent = getInitials(userName); // Avatar dinámico
 
     const usernameSpan = document.createElement('span');
     usernameSpan.className = 'message-card__username';
@@ -354,12 +598,12 @@ function createMessageElement(userID, userName, taskTitle, taskDesc, status, sto
 
     const timestamp = document.createElement('span');
     timestamp.className = 'message-card__timestamp';
-    // Mostrar la fecha almacenada si existe; en caso contrario usar la fecha actual
     timestamp.textContent = storedFecha ? storedFecha : getCurrentTimestamp();
 
     header.appendChild(userWrap);
     header.appendChild(timestamp);
 
+    // Contenido principal
     const titleEl = document.createElement('div');
     titleEl.className = 'message-card__title';
     titleEl.textContent = taskTitle;
@@ -368,26 +612,32 @@ function createMessageElement(userID, userName, taskTitle, taskDesc, status, sto
     contentEl.className = 'message-card__content';
     contentEl.textContent = taskDesc;
 
+    // Estado visual sincronizado con el backend
     const statusEl = document.createElement('div');
     statusEl.className = 'message-card__status ' + (status === 'activa' ? 'activa' : 'inactiva');
     statusEl.textContent = status === 'activa' ? 'Activa' : 'Inactiva';
 
-    
+    // Botones de acción (Edit → PUT, Delete → DELETE)
     const botones = document.createElement('div'); 
-    botones.className = 'message-card__botones'
+    botones.className = 'message-card__botones';
 
     const eliminar = document.createElement('button');
+    eliminar.type = 'button';
     eliminar.classList.add('message-card__eliminar');
     eliminar.textContent = 'Eliminar';
+    eliminar.dataset.action = 'delete';
 
     const editar = document.createElement('button');
+    editar.type = 'button';
     editar.classList.add('message-card__editar');
     editar.textContent = 'Editar';
+    editar.dataset.action = 'edit';
 
     card.appendChild(header);
     card.appendChild(titleEl);
     card.appendChild(contentEl);
     card.appendChild(statusEl);
+
     botones.appendChild(eliminar);
     botones.appendChild(editar);
     card.appendChild(botones);
@@ -400,19 +650,25 @@ function createMessageElement(userID, userName, taskTitle, taskDesc, status, sto
 // 7. MANEJO DE EVENTOS
 // ============================================
 
+// Controla cambios en inputs y limpia errores en tiempo real.
+// Mejora UX y evita validaciones tardías.
 function handleInputChange(e) {
     const target = e.target;
     if (!target) return;
 
+    // Sanitiza documento (solo números)
     if (target === userIDInput) {
         const cleaned = target.value.replace(/\D+/g, '');
         if (target.value !== cleaned) target.value = cleaned;
+
         clearError(userIDError);
         target.classList.remove('error');
+
         populateUserSuggestions(cleaned);
+
         if (!cleaned && usersList) usersList.innerHTML = '';
 
-        // Si el usuario ya estaba cargado y cambian el documento, limpiar
+        // Si cambian el documento, se invalida el usuario cargado
         if (currentUser) limpiarDatosUsuario();
     }
 
@@ -422,102 +678,270 @@ function handleInputChange(e) {
     if (target === userTareaInput) { clearError(userTareaError);  target.classList.remove('error'); }
 }
 
-/**
- * Maneja el envío del formulario en dos pasos:
- *  1. Si no hay usuario cargado: busca en la API y muestra los datos.
- *  2. Si ya hay usuario: valida y registra la tarea.
- */
+
+// Prepara la interfaz para editar una tarea existente.
+// Activa flujo HTTP PUT.
+async function manejarClickEditar(taskId) {
+
+    const card = document.querySelector(`.message-card[data-id="${taskId}"]`);
+    if (!card) return;
+
+    // Extrae datos actuales del DOM
+    const title = card.querySelector('.message-card__title')?.textContent;
+    const description = card.querySelector('.message-card__content')?.textContent;
+    const status = card.querySelector('.message-card__status')?.classList.contains('activa') ? 'activa' : 'inactiva';
+    const userName = card.querySelector('.message-card__username')?.textContent;
+    const documento = card.dataset.documento;
+
+    // Carga datos en el formulario
+    if (taskNameInput) taskNameInput.value = title || '';
+    if (userTareaInput) userTareaInput.value = description || '';
+    if (taskStatusInput) taskStatusInput.value = status || 'activa';
+
+    if (userIDInput) {
+        userIDInput.value = documento || '';
+        userIDInput.disabled = true; // No se permite cambiar usuario en edición
+    }
+
+    if (userNameInput) {
+        userNameInput.value = userName || '';
+        userNameInput.disabled = true;
+    }
+
+    editingTaskId = taskId; // Activa modo actualización (PUT)
+
+    if (submitBtnEl) {
+        submitBtnEl.querySelector('.btn__text').textContent = 'Actualizar Tarea';
+        submitBtnEl.classList.add('btn--update');
+    }
+
+    mostrarBotonCancelar();
+    habilitarFormularioTareas();
+
+    // Sincroniza usuario actual vía GET
+    const usuario = await buscarUsuarioPorDocumento(documento);
+    if (usuario) currentUser = usuario;
+}
+
+
+// Muestra botón cancelar solo en modo edición.
+function mostrarBotonCancelar() {
+    let btnCancel = document.getElementById('btnCancelEdit');
+
+    if (!btnCancel && submitBtnEl?.parentElement) {
+        btnCancel = document.createElement('button');
+        btnCancel.id = 'btnCancelEdit';
+        btnCancel.type = 'button';
+        btnCancel.className = 'btn btn--secondary';
+        btnCancel.innerHTML = '<span class="btn__text">Cancelar</span>';
+        btnCancel.style.marginLeft = 'var(--spacing-sm)';
+        btnCancel.addEventListener('click', cancelarEdicion);
+        submitBtnEl.parentElement.appendChild(btnCancel);
+    }
+
+    if (btnCancel) btnCancel.classList.remove('hidden');
+}
+
+
+// Restaura formulario al modo creación (POST)
+function cancelarEdicion() {
+
+    editingTaskId = null;
+
+    if (taskNameInput) taskNameInput.value = '';
+    if (userTareaInput) userTareaInput.value = '';
+    if (taskStatusInput) taskStatusInput.value = 'activa';
+
+    if (submitBtnEl) {
+        submitBtnEl.querySelector('.btn__text').textContent = 'Asignar Tarea';
+        submitBtnEl.classList.remove('btn--update');
+    }
+
+    const btnCancel = document.getElementById('btnCancelEdit');
+    if (btnCancel) btnCancel.classList.add('hidden');
+
+    if (userIDInput) userIDInput.disabled = false;
+    if (userNameInput && !currentUser) userNameInput.disabled = false;
+
+    clearError(taskNameError);
+    clearError(userTareaError);
+    clearError(taskStatusError);
+}
+
+
+// Delegación de eventos para acciones edit/delete
+function manejarClickCard(e) {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+
+    const card = btn.closest('.message-card');
+    if (!card) return;
+
+    const taskId = card.dataset.id;
+    const action = btn.dataset.action;
+
+    if (action === 'edit' && taskId) {
+        e.preventDefault();
+        manejarClickEditar(taskId);
+    }
+}
+
+
+// Actualiza visualmente una tarjeta tras un PUT exitoso
+function actualizarCardEnDOM(taskId, tarea) {
+
+    const card = document.querySelector(`.message-card[data-id="${taskId}"]`);
+    if (!card) return;
+
+    const titleEl = card.querySelector('.message-card__title');
+    if (titleEl) titleEl.textContent = tarea.title;
+
+    const contentEl = card.querySelector('.message-card__content');
+    if (contentEl) contentEl.textContent = tarea.description;
+
+    const statusEl = card.querySelector('.message-card__status');
+    if (statusEl) {
+        statusEl.className = 'message-card__status ' + (tarea.status === 'activa' ? 'activa' : 'inactiva');
+        statusEl.textContent = tarea.status === 'activa' ? 'Activa' : 'Inactiva';
+    }
+
+    // Feedback visual post-actualización
+    card.style.transition = 'background-color 0.3s ease';
+    card.style.backgroundColor = 'var(--color-primary-lighter)';
+    setTimeout(() => { card.style.backgroundColor = ''; }, 1000);
+}
+
+
+// Control principal del formulario.
+// Flujo:
+// - GET usuario (si no está cargado)
+// - POST nueva tarea
+// - PUT actualización
 async function handleFormSubmit(event) {
+
     event.preventDefault();
-    console.log('Formulario enviado');
 
     const userID = userIDInput.value.trim();
 
-    // Paso 1 – Buscar usuario si aún no está cargado
-    if (!currentUser) {
+    // Paso 1: buscar usuario (GET)
+    if (!currentUser && !editingTaskId) {
         if (!userID) {
             showError(userIDError, 'Ingrese un número de documento');
             return;
         }
-        console.log('Buscando usuario...');
+
         const encontrado = await buscar_mostrar_usuario(userID);
         if (!encontrado) return;
 
-        console.log('Usuario encontrado. Complete los campos de tarea y envíe de nuevo.');
         return;
     }
 
-    // Verificar que el documento coincide con el usuario cargado
-    if (String(currentUser.documento) !== String(userID)) {
+    // Validación de coherencia de usuario
+    if (!editingTaskId && currentUser && String(currentUser.documento) !== String(userID)) {
         showError(userIDError, 'El documento no coincide con el usuario cargado');
         limpiarDatosUsuario();
         return;
     }
 
-    // Paso 2 – Validar y registrar la tarea
-    if (!validateForm()) {
-        console.log('Validación fallida');
-        return;
-    }
+    if (!validateForm()) return;
 
     const taskTitle  = taskNameInput.value.trim();
     const taskDesc   = userTareaInput.value.trim();
     const taskStatus = taskStatusInput.value;
 
-    const nuevaTarea = {
-        userId: currentUser.id,
-        documento: currentUser.documento,
-        nombre_completo: currentUser.nombre_completo,
-        title: taskTitle,
-        description: taskDesc,
-        status: taskStatus,
-        fecha: getCurrentTimestamp()
-    };
-
     try {
-        const tareaRegistrada = await asignar_tarea(nuevaTarea);
-        console.log('Tarea asignada exitosamente:', tareaRegistrada);
 
-        const card = createMessageElement(
-            currentUser.id,
-            currentUser.nombre_completo,
-            taskTitle,
-            taskDesc,
-            taskStatus,
-            nuevaTarea.fecha
-        );
+        // Flujo PUT (actualizar)
+        if (editingTaskId) {
 
-        messagesContainerEl.insertBefore(card, messagesContainerEl.firstChild);
-        totalMessagesCount++;
-        updateMessageCount();
-        hideEmptyState();
+            const datosActualizados = {
+                title: taskTitle,
+                description: taskDesc,
+                status: taskStatus
+            };
 
-        // Limpiar solo los campos de tarea; mantener usuario activo
-        taskNameInput.value   = '';
-        userTareaInput.value  = '';
-        taskStatusInput.value = 'activa';
+            const tareaActualizada = await actualizarTarea(editingTaskId, datosActualizados);
+            actualizarCardEnDOM(editingTaskId, tareaActualizada);
 
-        console.log('Tarea registrada. Total:', totalMessagesCount);
+            alert('✅ Tarea actualizada correctamente');
+
+            cancelarEdicion();
+            cargarTareasExistentes(); // Refuerza sincronización con backend
+
+        } else {
+
+            // Flujo POST (crear)
+            const nuevaTarea = {
+                userId: currentUser.id,
+                documento: currentUser.documento,
+                nombre_completo: currentUser.nombre_completo,
+                title: taskTitle,
+                description: taskDesc,
+                status: taskStatus,
+                fecha: getCurrentTimestamp()
+            };
+
+            const tareaRegistrada = await asignar_tarea(nuevaTarea);
+
+            const card = createMessageElement(
+                tareaRegistrada.id,
+                currentUser.id,
+                currentUser.nombre_completo,
+                taskTitle,
+                taskDesc,
+                taskStatus,
+                nuevaTarea.fecha,
+                currentUser.documento
+            );
+
+            messagesContainerEl.insertBefore(card, messagesContainerEl.firstChild);
+
+            totalMessagesCount++;
+            updateMessageCount();
+            hideEmptyState();
+
+            taskNameInput.value   = '';
+            userTareaInput.value  = '';
+            taskStatusInput.value = 'activa';
+
+            alert('✅ Tarea asignada correctamente');
+        }
 
     } catch (error) {
-        console.error('Error al asignar tarea:', error);
-        alert('Error al asignar la tarea. Verifica que json-server esté corriendo.');
+        console.error('Error en la operación:', error);
+        showError(userTareaError, 'Error al guardar. Verifica que json-server esté corriendo.');
     }
 }
-
-
 // ============================================
 // 8. REGISTRO DE EVENTOS
 // ============================================
 
-if (messageFormEl)  messageFormEl.addEventListener('submit', handleFormSubmit);
-if (userIDInput)    userIDInput.addEventListener('input', handleInputChange);
-if (userNameInput)  userNameInput.addEventListener('input', handleInputChange);
-if (taskNameInput)  taskNameInput.addEventListener('input', handleInputChange);
-if (userTareaInput) userTareaInput.addEventListener('input', handleInputChange);
-if (taskStatusInput) taskStatusInput.addEventListener('change', handleInputChange);
+// Se centraliza la conexión entre la interfaz (DOM) y la lógica del sistema.
+// Aquí se activan los listeners que disparan validaciones y operaciones HTTP.
 
-// Rellenar datalist al hacer foco en el campo de nombre
+if (messageFormEl)
+    messageFormEl.addEventListener('submit', handleFormSubmit); 
+// Evento principal → controla flujo GET (buscar usuario), POST (crear) y PUT (actualizar)
+
+if (userIDInput)
+    userIDInput.addEventListener('input', handleInputChange);
+// Sanitiza documento y limpia errores en tiempo real
+
+if (userNameInput)
+    userNameInput.addEventListener('input', handleInputChange);
+
+if (taskNameInput)
+    taskNameInput.addEventListener('input', handleInputChange);
+
+if (userTareaInput)
+    userTareaInput.addEventListener('input', handleInputChange);
+
+if (taskStatusInput)
+    taskStatusInput.addEventListener('change', handleInputChange);
+// Detecta cambios en el select de estado
+
+
+// Autocompletado dinámico usando caché local (sin nueva petición HTTP)
 if (userNameInput) {
     userNameInput.addEventListener('focus', function () {
         const idVal = userIDInput ? userIDInput.value.replace(/\D+/g, '') : '';
@@ -526,17 +950,28 @@ if (userNameInput) {
 }
 
 
+// Delegación de eventos en contenedor principal.
+// Permite manejar múltiples botones (editar/eliminar) con un solo listener.
+// Escalable y eficiente.
+if (messagesContainerEl) {
+    messagesContainerEl.addEventListener('click', manejarClickCard);
+}
+
+
 // ============================================
 // 9. INICIALIZACIÓN
 // ============================================
 
-/**
- * Carga las tareas ya almacenadas en la API y las renderiza al iniciar la página.
- */
+// Carga inicial de tareas almacenadas en backend (HTTP GET).
+// Sincroniza el estado visual con la base de datos al iniciar la app.
 async function cargarTareasExistentes() {
+
     try {
         const response = await fetch(`${API_BASE_URL}/tasks`);
-        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        // Método HTTP GET automático en fetch
+
+        if (!response.ok)
+            throw new Error(`Error HTTP: ${response.status}`);
 
         const tareas = await response.json();
         console.log('Tareas cargadas desde la API:', tareas);
@@ -546,18 +981,24 @@ async function cargarTareasExistentes() {
             return;
         }
 
-        // Renderizar en orden cronológico (más reciente primero)
+        messagesContainerEl.innerHTML = '';
+
+        // Orden cronológico inverso → más reciente primero
         const tareasOrdenadas = [...tareas].reverse();
 
         tareasOrdenadas.forEach(tarea => {
-                const card = createMessageElement(
-                    tarea.userId,
-                    tarea.nombre_completo,
-                    tarea.title,
-                    tarea.description,
-                    tarea.status,
-                    tarea.fecha
-                );
+
+            const card = createMessageElement(
+                tarea.id,
+                tarea.userId,
+                tarea.nombre_completo,
+                tarea.title,
+                tarea.description,
+                tarea.status,
+                tarea.fecha,
+                tarea.documento
+            );
+
             messagesContainerEl.appendChild(card);
         });
 
@@ -566,69 +1007,27 @@ async function cargarTareasExistentes() {
         hideEmptyState();
 
     } catch (error) {
+
         console.error('Error al cargar tareas existentes:', error);
-        showEmptyState();
+        showEmptyState(); // Manejo visual de fallo de conexión
     }
 }
 
-// Formulario de tareas deshabilitado al inicio (CRITERIO 11)
+
+// Estado inicial del sistema antes de cargar datos
 deshabilitarFormularioTareas();
 updateMessageCount();
 
+
+// Punto de entrada oficial de la aplicación.
+// Garantiza que el DOM esté completamente cargado antes de ejecutar lógica.
 document.addEventListener('DOMContentLoaded', function () {
+
     console.log('✅ DOM completamente cargado');
     console.log('Sistema de Gestión de Tareas iniciado');
     console.log('API Base URL:', API_BASE_URL);
     console.log('Asegúrate de que json-server esté corriendo en el puerto 3000');
 
-    deshabilitarFormularioTareas();
-    cargarTareasExistentes(); // 👈 Cargar tareas almacenadas al iniciar
+    deshabilitarFormularioTareas(); // Previene acciones sin usuario válido
+    cargarTareasExistentes();       // GET inicial para renderizar tareas
 });
-
-
-// ============================================
-// 10. REFLEXIÓN Y DOCUMENTACIÓN
-// ============================================
-
-/**
- * PREGUNTAS DE REFLEXIÓN:
- *
- * 1. ¿Qué elemento del DOM estás seleccionando?
- *    R: El formulario, los campos de entrada (documento, nombre, título,
- *       descripción, estado), los elementos de error y el contenedor de mensajes.
- *
- * 2. ¿Qué evento provoca el cambio en la página?
- *    R: El evento 'submit' del formulario, capturado con preventDefault()
- *       para evitar la recarga de la página.
- *
- * 3. ¿Qué nuevo elemento se crea?
- *    R: Un <div class="message-card"> con el avatar, nombre, timestamp,
- *       título, descripción y estado de la tarea.
- *
- * 4. ¿Dónde se inserta ese elemento dentro del DOM?
- *    R: Al inicio del contenedor 'messagesContainer' con insertBefore,
- *       mostrando las tareas más recientes primero.
- *
- * 5. ¿Qué ocurre en la página cada vez que repites la acción?
- *    R: Se agrega una nueva tarjeta al inicio de la lista, se actualiza
- *       el contador, se oculta el mensaje vacío y se limpian solo los
- *       campos de tarea (manteniendo el usuario activo para registrar más tareas).
- */
-
-
-// ============================================
-// 11. FUNCIONALIDADES ADICIONALES (BONUS)
-// ============================================
-
-/**
- * RETOS ADICIONALES OPCIONALES:
- *
- * 1. Agregar un botón para eliminar mensajes individuales
- * 2. Implementar localStorage para persistir los mensajes
- * 3. Agregar un contador de caracteres en el textarea
- * 4. Implementar un botón para limpiar todos los mensajes
- * 5. Agregar diferentes colores de avatar según el nombre del usuario
- * 6. Permitir editar mensajes existentes
- * 7. Agregar emojis o reacciones a los mensajes
- * 8. Implementar búsqueda/filtrado de mensajes
- */
