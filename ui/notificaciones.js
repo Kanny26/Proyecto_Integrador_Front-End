@@ -27,3 +27,4 @@ export function mostrarNotificacion(mensaje) {
         setTimeout(() => notif.remove(), 300);
     }, 3000);
 }
+

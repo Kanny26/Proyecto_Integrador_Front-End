@@ -27,6 +27,7 @@ import {
     updateTareaCount
 } from './ui/index.js';
 
+import Swal from 'sweetalert2'
 
 // ==========================================================
 // 2. SELECCIÓN DE ELEMENTOS DEL DOM

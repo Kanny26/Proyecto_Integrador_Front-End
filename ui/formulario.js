@@ -29,7 +29,7 @@ import {
 import { createCardTarea, actualizarCardEnDOM }        from './cardTarea.js';
 import { validateForm }                                from '../utils/index.js';
 import { showError, clearError, mostrarErroresFormulario } from './errores.js';
-import { mostrarNotificacion }                         from './notificacion.js';
+import { mostrarNotificacion }                         from './notificaciones.js';
 
 
 // ==========================================================
