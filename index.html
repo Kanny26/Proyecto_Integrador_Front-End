@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Mensajes - Ejercicio DOM</title>
+    <title>Sistema de Gestion de Tareas</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,7 +18,7 @@
             <div class="card">
                 <h2 class="card__title">Nueva Tarea</h2>
                 
-                <form id="messageForm" class="form" novalidate autocomplete="off">
+                <form id="tareaForm" class="form" novalidate autocomplete="off">
                     <div class="form__group">
                         <label for="userID" class="form__label">
                             Numero de Documento
@@ -103,10 +103,10 @@
         <section class="messages-section">
             <div class="messages-header">
                 <h2 class="messages-header__title">Tareas Publicadas</h2>
-                <span class="messages-header__count" id="messageCount">0 Tareas</span>
+                <span class="messages-header__count" id="tareaCount">0 Tareas</span>
             </div>
             
-            <div id="messagesContainer" class="messages-container">
+            <div id="tareasContainer" class="messages-container">
                 <!-- Los mensajes se agregarán aquí dinámicamente -->
                 <div class="messages-empty" id="emptyState">
                     <svg class="messages-empty__icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -126,6 +126,6 @@
         </footer>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
