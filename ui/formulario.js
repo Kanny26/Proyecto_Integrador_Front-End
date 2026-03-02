@@ -29,7 +29,7 @@ import {
 import { createCardTarea, actualizarCardEnDOM }        from './cardTarea.js';
 import { validateForm }                                from '../utils/index.js';
 import { showError, clearError, mostrarErroresFormulario } from './errores.js';
-import { mostrarNotificacion }                         from './notificaciones.js';
+import { mostrarNotificacion, alertNotiExito, alertNotiInfo}                         from './notificaciones.js';
 
 
 // ==========================================================
@@ -387,6 +387,7 @@ export async function handleFormSubmit(event) {
             alert('✅ Tarea actualizada correctamente');
             dom.tareaFormEl.reset();
             cancelarEdicion();
+            alertNotiInfo();
 
             // Recargar para sincronizar contador desde el backend
             await inicializarApp();
@@ -398,8 +399,7 @@ export async function handleFormSubmit(event) {
             if (dom.taskNameInput)   dom.taskNameInput.value   = '';
             if (dom.userTareaInput)  dom.userTareaInput.value   = '';
             if (dom.taskStatusInput) dom.taskStatusInput.value  = 'activa';
-
-            alert('✅ Tarea asignada correctamente');
+            alertNotiExito();
 
             // Recargar para sincronizar contador desde el backend
             // El contador es tareas.length del GET, no un incremento manual

@@ -27,7 +27,6 @@ import {
     updateTareaCount
 } from './ui/index.js';
 
-import Swal from 'sweetalert2'
 
 // ==========================================================
 // 2. SELECCIÓN DE ELEMENTOS DEL DOM
@@ -80,4 +79,5 @@ document.addEventListener('DOMContentLoaded', () => {
     deshabilitarFormularioTareas();
     updateTareaCount(0);
     inicializarApp();
+    
 });
