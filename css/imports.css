@@ -1,1 +1,12 @@
-/*importaciones de componentes CSS*/
+/*
+ * ==========================================================
+ * CSS – Importaciones de componentes
+ * ==========================================================
+ * Punto de entrada para todos los estilos modulares.
+ * Cada archivo corresponde a un componente específico.
+ * ==========================================================
+ */
+
+@import url(components/buttons.css);
+@import url(components/cards.css);
+@import url(components/notifications.css);
