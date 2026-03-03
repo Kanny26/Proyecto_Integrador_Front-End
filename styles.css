@@ -293,6 +293,47 @@ body {
     border-radius: var(--radius-full);
 }
 
+/* Controles de Filtros y Ordenamiento */
+.messages-filter {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    min-width: 150px;
+    max-width: max-content;
+    cursor: pointer;
+    border-radius: var(--radius-full);
+}
+
+.messages-sort-container {
+    display: flex;
+    gap: var(--spacing-xs);
+    margin-right: auto;
+    align-items: center;
+}
+
+.messages-sort-select {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    min-width: 140px;
+    max-width: max-content;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+}
+
+.btn--sort {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-gray-100);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color var(--transition-base);
+}
+
+.btn--sort:hover {
+    background-color: var(--color-gray-200);
+}
+
 .messages-container {
     display: flex;
     flex-direction: column;

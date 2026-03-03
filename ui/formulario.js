@@ -462,3 +462,88 @@ export function filtrarTareas(event) {
         }
     }
 }
+
+
+/**
+ * Ordena las tareas en el DOM de acuerdo al criterio seleccionado.
+ */
+export function ordenarTareas() {
+    if (!dom.tareasContainerEl || !dom.sortFieldEl || !dom.sortBtnEl) return;
+
+    // Obtenemos un array de los elementos "card" actuales
+    const cards = Array.from(dom.tareasContainerEl.querySelectorAll('.tarea-card'));
+    const criterio = dom.sortFieldEl.value; // 'fecha', 'estado', 'nombre'
+
+    // Alternar dirección visual y de memoria
+    const currentDir = dom.sortBtnEl.dataset.dir || 'desc';
+    const newDir = currentDir === 'desc' ? 'asc' : 'desc';
+    dom.sortBtnEl.dataset.dir = newDir;
+
+    // Actualizar el texto del botón según la dirección
+    dom.sortBtnEl.textContent = `Ordenar ${newDir === 'desc' ? '↓' : '↑'}`;
+
+    // Multiplicador para invertir el sort (1 o -1)
+    const dirMult = newDir === 'desc' ? 1 : -1;
+
+    // Pesos para ordenar estado lógicamente: Pendiente (1) -> En proceso (2) -> Completada (3)
+    const estadoPesos = {
+        'pendiente': 1,
+        'en proceso': 2,
+        'completada': 3
+    };
+
+    cards.sort((a, b) => {
+        let result = 0;
+
+        if (criterio === 'nombre') {
+            const titleA = a.querySelector('.tarea-card__title')?.textContent.toLowerCase() || '';
+            const titleB = b.querySelector('.tarea-card__title')?.textContent.toLowerCase() || '';
+            result = titleA.localeCompare(titleB);
+        }
+
+        else if (criterio === 'estado') {
+            const statusA = a.querySelector('.tarea-card__status')?.textContent.toLowerCase() || 'pendiente';
+            const statusB = b.querySelector('.tarea-card__status')?.textContent.toLowerCase() || 'pendiente';
+
+            const pesoA = estadoPesos[statusA] || 0;
+            const pesoB = estadoPesos[statusB] || 0;
+            result = pesoA - pesoB;
+        }
+
+        else if (criterio === 'fecha') {
+            const dateStrA = a.querySelector('.tarea-card__timestamp')?.textContent || '';
+            const dateStrB = b.querySelector('.tarea-card__timestamp')?.textContent || '';
+
+            // Convert Spanish textual dates "3 de marzo de 2026, 11:51" into parseable dates
+            const parseSpanishDate = (str) => {
+                if (!str) return 0;
+                const meses = {
+                    'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
+                    'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+                };
+
+                // Regex to extract day, month, year, time
+                const match = str.match(/(\d+)\s+de\s+([a-zA-Z]+)\s+de\s+(\d+),\s+(\d+):(\d+)/);
+                if (match) {
+                    const [_, day, monthStr, year, hour, minute] = match;
+                    const month = meses[monthStr.toLowerCase()];
+                    if (month !== undefined) {
+                        return new Date(year, month, day, hour, minute).getTime();
+                    }
+                }
+                // Fallback to integer ID if parsing fails
+                return parseInt(a.dataset.id) || 0;
+            };
+
+            const timeA = parseSpanishDate(dateStrA);
+            const timeB = parseSpanishDate(dateStrB);
+
+            result = timeB - timeA; // Mayor Date (más reciente) primero
+        }
+
+        return result * dirMult;
+    });
+
+    // Reinsertar en el DOM en el nuevo orden
+    cards.forEach(card => dom.tareasContainerEl.appendChild(card));
+}
