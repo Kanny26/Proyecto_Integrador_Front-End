@@ -35,30 +35,88 @@ export const alertNotiExito = () => {
     Swal.fire({
       title: "Tarea registrada con exito!",
       text: "continua con la proxima!",
-      icon: "OK",
+      icon: "success",
     });
 }
 
-export const alertNotiInfo = () => {
+export const alertNotiInfo = (dom) => {
     Swal.fire({
-        title: "<strong>HTML <u>example</u></strong>",
+        title: "<strong>vas a editar una tarea</strong>",
         icon: "info",
         html: `
-            You can use <b>bold text</b>,
-            <a href="#" autofocus>links</a>,
-            and other HTML tags
+            Los datos editados se actualizaran y veras los nuevos 
         `,
         showCloseButton: true,
         showCancelButton: true,
         focusConfirm: false,
         confirmButtonText: `
-            <i class="fa fa-thumbs-up"></i> Great!
+            <i class="fa fa-thumbs-up"></i> Si, continuar!
         `,
-        confirmButtonAriaLabel: "Thumbs up, great!",
         cancelButtonText: `
-            <i class="fa fa-thumbs-down"></i>
-        `,
-        cancelButtonAriaLabel: "Thumbs down"
-        });
+            <i class="fa fa-thumbs-down"></i> No, Cancelar
+        `
+        }).then((result) => {
+        // Si el usuario hace click en CANCELAR
+        if (result.dismiss === Swal.DismissReason.cancel) {
+            dom.tareaFormEl.reset();  // el formulario se limpia 
+        }
+    });
 }
+
+export const alertNotiError = () => {
+    Swal.fire({
+    icon: "error",
+    title:"Campos incompletos",
+    text:"Por favor completa todos los campos",
     
+    });
+}
+
+export const alertEditOk = () => {
+    Swal.fire({
+  title: "Edicion exitosa!",
+  text: "edicion completada",
+  icon: "success"
+    });
+}
+
+export const alertDeleteOk = () => {
+    Swal.fire({
+  title: "Estas seguro de eliminar?",
+  text: "No se podra revertir esta accion",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Si , Eliminalo!"
+}).then((result) => {
+  if (result.isConfirmed) {
+    Swal.fire({
+      title: "Eliminado!",
+      text: "Tu archivo ha sido eliminado.",
+      icon: "correctamente"
+    });
+  }
+});
+}
+
+/**
+ * Muestra alerta de confirmación de eliminación con SweetAlert2.
+ * Retorna una promesa que se resuelve con true si confirma, false si cancela.
+ *
+ * @returns {Promise<boolean>}
+ */
+export const alertDeleteConfirm = () => {
+    return Swal.fire({
+        title: "¿Estás seguro de eliminar?",
+        text: "No se podrá revertir esta acción",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, ¡elimínalo!",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        return result.isConfirmed;
+    });
+}

@@ -22,6 +22,7 @@ import {
     handleFormSubmit,
     handleInputChange,
     manejarClickCard,
+    handleExportTasks,
     deshabilitarFormularioTareas,
     populateUserSuggestions,
     updateTareaCount
@@ -33,22 +34,23 @@ import {
 // ==========================================================
 
 const dom = {
-    tareaFormEl:        document.getElementById('tareaForm'),
-    userIDInput:        document.getElementById('userID'),
-    userNameInput:      document.getElementById('userName'),
-    taskNameInput:      document.getElementById('taskName'),
-    userTareaInput:     document.getElementById('userTarea'),
-    taskStatusInput:    document.getElementById('taskStatus'),
-    submitBtnEl:        document.getElementById('submitBtn'),
-    userIDError:        document.getElementById('userIDError'),
-    userNameError:      document.getElementById('userNameError'),
-    taskNameError:      document.getElementById('taskNameError'),
-    taskStatusError:    document.getElementById('taskStatusError'),
-    userTareaError:     document.getElementById('userTareaError'),
-    tareasContainerEl:  document.getElementById('tareasContainer'),
-    usersList:          document.getElementById('usersList'),
-    emptyStateEl:       document.getElementById('emptyState'),
-    tareaCountEl:       document.getElementById('tareaCount')
+    tareaFormEl: document.getElementById('tareaForm'),
+    userIDInput: document.getElementById('userID'),
+    userNameInput: document.getElementById('userName'),
+    taskNameInput: document.getElementById('taskName'),
+    userTareaInput: document.getElementById('userTarea'),
+    taskStatusInput: document.getElementById('taskStatus'),
+    submitBtnEl: document.getElementById('submitBtn'),
+    exportBtnEl: document.getElementById('exportBtn'),
+    userIDError: document.getElementById('userIDError'),
+    userNameError: document.getElementById('userNameError'),
+    taskNameError: document.getElementById('taskNameError'),
+    taskStatusError: document.getElementById('taskStatusError'),
+    userTareaError: document.getElementById('userTareaError'),
+    tareasContainerEl: document.getElementById('tareasContainer'),
+    usersList: document.getElementById('usersList'),
+    emptyStateEl: document.getElementById('emptyState'),
+    tareaCountEl: document.getElementById('tareaCount')
 };
 
 
@@ -56,13 +58,14 @@ const dom = {
 // 3. REGISTRO DE EVENTOS
 // ==========================================================
 
-dom.tareaFormEl?.addEventListener('submit',       handleFormSubmit);
-dom.userIDInput?.addEventListener('input',        handleInputChange);
-dom.userNameInput?.addEventListener('input',      handleInputChange);
-dom.taskNameInput?.addEventListener('input',      handleInputChange);
-dom.userTareaInput?.addEventListener('input',     handleInputChange);
-dom.taskStatusInput?.addEventListener('change',   handleInputChange);
-dom.tareasContainerEl?.addEventListener('click',  manejarClickCard);
+dom.tareaFormEl?.addEventListener('submit', handleFormSubmit);
+dom.userIDInput?.addEventListener('input', handleInputChange);
+dom.userNameInput?.addEventListener('input', handleInputChange);
+dom.taskNameInput?.addEventListener('input', handleInputChange);
+dom.userTareaInput?.addEventListener('input', handleInputChange);
+dom.taskStatusInput?.addEventListener('change', handleInputChange);
+dom.tareasContainerEl?.addEventListener('click', manejarClickCard);
+dom.exportBtnEl?.addEventListener('click', handleExportTasks);
 
 dom.userNameInput?.addEventListener('focus', () => {
     const idVal = dom.userIDInput?.value.replace(/\D+/g, '') || '';
@@ -79,5 +82,5 @@ document.addEventListener('DOMContentLoaded', () => {
     deshabilitarFormularioTareas();
     updateTareaCount(0);
     inicializarApp();
-    
+
 });
