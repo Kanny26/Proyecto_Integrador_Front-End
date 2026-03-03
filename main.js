@@ -27,7 +27,8 @@ import {
     populateUserSuggestions,
     updateTareaCount,
     filtrarTareas,
-    ordenarTareas
+    ordenarTareas, 
+    crearControlesFiltroyOrdenamiento
 } from './ui/index.js';
 
 
@@ -86,6 +87,17 @@ dom.userNameInput?.addEventListener('focus', () => {
 // ==========================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    crearControlesFiltroyOrdenamiento();
+    dom.filterField = document.getElementById('filterField');
+    dom.sortFieldEl = document.getElementById('sortField');
+    dom.sortBtnEl = document.getElementById('sortBtn');
+
+    dom.filterField?.addEventListener('change', filtrarTareas);
+    dom.sortFieldEl?.addEventListener('change', ordenarTareas);
+    dom.sortBtnEl?.addEventListener('click', ordenarTareas);
+    
+    
     init(dom);
     deshabilitarFormularioTareas();
     updateTareaCount(0);

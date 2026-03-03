@@ -581,3 +581,95 @@ export function ordenarTareas() {
     // Reinsertar en el DOM en el nuevo orden
     cards.forEach(card => dom.tareasContainerEl.appendChild(card));
 }
+
+export function crearControlesFiltroyOrdenamiento() {
+    const messagesHeader = document.querySelector('.messages-header');
+    if (!messagesHeader) {
+        console.error('❌ Error: No se encontró .messages-header');
+        return;
+    }
+
+    let actionsDiv = messagesHeader.querySelector('.messages-header__actions');
+    if (!actionsDiv) {
+        actionsDiv = document.createElement('div');
+        actionsDiv.className = 'messages-header__actions';
+        messagesHeader.appendChild(actionsDiv);
+    }
+
+    actionsDiv.innerHTML = '';
+
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'messages-header__controls';
+
+    // CREAR SELECT DE FILTRO
+    const filterSelect = document.createElement('select');
+    filterSelect.id = 'filterField';
+    filterSelect.className = 'messages-filter';
+    filterSelect.title = 'Filtrar tareas por estado';
+
+    const filterOptions = [
+        { value: '', text: 'Todos' },
+        { value: 'pendiente', text: 'Pendiente' },
+        { value: 'en proceso', text: 'En proceso' },
+        { value: 'completada', text: 'Completada' }
+    ];
+
+    filterOptions.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        filterSelect.appendChild(option);
+    });
+
+    controlsDiv.appendChild(filterSelect);
+
+    // CREAR CONTENEDOR DE ORDENAMIENTO
+    const sortContainer = document.createElement('div');
+    sortContainer.className = 'messages-sort-container';
+
+    const sortSelect = document.createElement('select');
+    sortSelect.id = 'sortField';
+    sortSelect.className = 'messages-sort-select';
+    sortSelect.title = 'Ordenar por criterio';
+
+    const sortOptions = [
+        { value: 'fecha', text: 'Fecha' },
+        { value: 'estado', text: 'Estado' },
+        { value: 'nombre', text: 'Nombre' }
+    ];
+
+    sortOptions.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        sortSelect.appendChild(option);
+    });
+
+    sortContainer.appendChild(sortSelect);
+
+    const sortButton = document.createElement('button');
+    sortButton.id = 'sortBtn';
+    sortButton.type = 'button';
+    sortButton.className = 'btn btn--sort';
+    sortButton.title = 'Cambiar dirección de ordenamiento';
+    sortButton.textContent = 'Ordenar ↓';
+    sortButton.dataset.dir = 'desc';
+
+    sortContainer.appendChild(sortButton);
+
+    controlsDiv.appendChild(sortContainer);
+    actionsDiv.appendChild(controlsDiv);
+
+    const tareaCountEl = document.getElementById('tareaCount');
+    const exportBtn = document.getElementById('exportBtn');
+
+    if (tareaCountEl && !actionsDiv.contains(tareaCountEl)) {
+        actionsDiv.appendChild(tareaCountEl);
+    }
+
+    if (exportBtn && !actionsDiv.contains(exportBtn)) {
+        actionsDiv.appendChild(exportBtn);
+    }
+
+    console.log('Controles de filtrado y ordenamiento creados');
+}

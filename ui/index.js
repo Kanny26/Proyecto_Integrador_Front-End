@@ -20,7 +20,8 @@ export {
     updateTareaCount,
     populateUserSuggestions,
     filtrarTareas,
-    ordenarTareas
+    ordenarTareas,
+    crearControlesFiltroyOrdenamiento
 } from './formulario.js';
 
 export { descargarArchivoJSON } from './descarga.js';

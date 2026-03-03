@@ -458,6 +458,107 @@ body {
 }
 
 
+.messages-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.messages-header__controls {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.messages-filter {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    min-width: 150px;
+    max-width: max-content;
+    cursor: pointer;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-base);
+    transition: all var(--transition-base);
+}
+
+.messages-filter:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-lighter);
+}
+
+.messages-filter:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-lighter);
+}
+
+.messages-sort-container {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+.messages-sort-select {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    min-width: 140px;
+    max-width: max-content;
+    cursor: pointer;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-base);
+    transition: all var(--transition-base);
+}
+
+.messages-sort-select:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-lighter);
+}
+
+.messages-sort-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-lighter);
+}
+
+.btn--sort {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    background-color: var(--color-gray-100);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-base);
+}
+
+.btn--sort:hover {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn--sort:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--sort:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-lighter);
+}
+
 
 /* ============================================
    FOOTER
@@ -555,3 +656,4 @@ body {
         transform: scale(0.95);
     }
 }
+
