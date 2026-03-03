@@ -26,10 +26,10 @@ import {
     setCurrentUser
 } from '../services/index.js';
 
-import { createCardTarea, actualizarCardEnDOM }        from './cardTarea.js';
-import { validateForm }                                from '../utils/index.js';
+import { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
+import { validateForm } from '../utils/index.js';
 import { showError, clearError, mostrarErroresFormulario } from './errores.js';
-import { mostrarNotificacion }                         from './notificaciones.js';
+import { mostrarNotificacion } from './notificaciones.js';
 
 
 // ==========================================================
@@ -80,15 +80,15 @@ export function showEmptyState() {
 }
 
 export function habilitarFormularioTareas() {
-    if (dom.taskNameInput)   dom.taskNameInput.disabled   = false;
-    if (dom.taskStatusInput) dom.taskStatusInput.disabled  = false;
-    if (dom.userTareaInput)  dom.userTareaInput.disabled   = false;
+    if (dom.taskNameInput) dom.taskNameInput.disabled = false;
+    if (dom.taskStatusInput) dom.taskStatusInput.disabled = false;
+    if (dom.userTareaInput) dom.userTareaInput.disabled = false;
 }
 
 export function deshabilitarFormularioTareas() {
-    if (dom.taskNameInput)   { dom.taskNameInput.disabled   = true; dom.taskNameInput.value   = ''; }
-    if (dom.taskStatusInput) { dom.taskStatusInput.disabled  = true; dom.taskStatusInput.value  = 'activa'; }
-    if (dom.userTareaInput)  { dom.userTareaInput.disabled   = true; dom.userTareaInput.value   = ''; }
+    if (dom.taskNameInput) { dom.taskNameInput.disabled = true; dom.taskNameInput.value = ''; }
+    if (dom.taskStatusInput) { dom.taskStatusInput.disabled = true; dom.taskStatusInput.value = ''; }
+    if (dom.userTareaInput) { dom.userTareaInput.disabled = true; dom.userTareaInput.value = ''; }
 }
 
 export function populateUserSuggestions(documentNumber) {
@@ -108,9 +108,9 @@ function mostrarBotonCancelar() {
     let btnCancel = document.getElementById('btnCancelEdit');
 
     if (!btnCancel && dom.submitBtnEl?.parentElement) {
-        btnCancel           = document.createElement('button');
-        btnCancel.id        = 'btnCancelEdit';
-        btnCancel.type      = 'button';
+        btnCancel = document.createElement('button');
+        btnCancel.id = 'btnCancelEdit';
+        btnCancel.type = 'button';
         btnCancel.className = 'btn btn--secondary';
         btnCancel.innerHTML = '<span class="btn__text">Cancelar</span>';
         btnCancel.style.marginLeft = 'var(--spacing-sm)';
@@ -124,9 +124,9 @@ function mostrarBotonCancelar() {
 export function cancelarEdicion() {
     editandoTareaId = null;
 
-    if (dom.taskNameInput)   dom.taskNameInput.value   = '';
-    if (dom.userTareaInput)  dom.userTareaInput.value   = '';
-    if (dom.taskStatusInput) dom.taskStatusInput.value  = 'activa';
+    if (dom.taskNameInput) dom.taskNameInput.value = '';
+    if (dom.userTareaInput) dom.userTareaInput.value = '';
+    if (dom.taskStatusInput) dom.taskStatusInput.value = '';
 
     if (dom.submitBtnEl) {
         dom.submitBtnEl.querySelector('.btn__text').textContent = 'Asignar Tarea';
@@ -135,11 +135,11 @@ export function cancelarEdicion() {
 
     document.getElementById('btnCancelEdit')?.classList.add('hidden');
 
-    if (dom.userIDInput)   dom.userIDInput.disabled   = false;
-    if (dom.userNameInput) dom.userNameInput.disabled  = false;
+    if (dom.userIDInput) dom.userIDInput.disabled = false;
+    if (dom.userNameInput) dom.userNameInput.disabled = false;
 
-    clearError(dom.taskNameError,   dom.taskNameInput);
-    clearError(dom.userTareaError,  dom.userTareaInput);
+    clearError(dom.taskNameError, dom.taskNameInput);
+    clearError(dom.userTareaError, dom.userTareaInput);
     clearError(dom.taskStatusError, dom.taskStatusInput);
 }
 
@@ -216,16 +216,16 @@ export function handleInputChange(e) {
             setCurrentUser(null);
             deshabilitarFormularioTareas();
             if (dom.userNameInput) {
-                dom.userNameInput.value    = '';
+                dom.userNameInput.value = '';
                 dom.userNameInput.disabled = false;
             }
         }
     }
 
-    if (target === dom.userNameInput)   clearError(dom.userNameError,   dom.userNameInput);
-    if (target === dom.taskNameInput)   clearError(dom.taskNameError,   dom.taskNameInput);
+    if (target === dom.userNameInput) clearError(dom.userNameError, dom.userNameInput);
+    if (target === dom.taskNameInput) clearError(dom.taskNameError, dom.taskNameInput);
     if (target === dom.taskStatusInput) clearError(dom.taskStatusError, dom.taskStatusInput);
-    if (target === dom.userTareaInput)  clearError(dom.userTareaError,  dom.userTareaInput);
+    if (target === dom.userTareaInput) clearError(dom.userTareaError, dom.userTareaInput);
 }
 
 
@@ -236,18 +236,30 @@ async function manejarClickEditar(tareaId) {
     const card = document.querySelector(`.tarea-card[data-id="${tareaId}"]`);
     if (!card) return;
 
-    const title       = card.querySelector('.tarea-card__title')?.textContent;
-    const description = card.querySelector('.tarea-card__content')?.textContent;
-    const status      = card.querySelector('.tarea-card__status')?.classList.contains('activa')
-                            ? 'activa' : 'inactiva';
-    const userName    = card.querySelector('.tarea-card__username')?.textContent;
-    const documento   = card.dataset.documento;
+    const targetTitle = card.querySelector('.tarea-card__title');
+    const targetDesc = card.querySelector('.tarea-card__content');
+    const targetStatus = card.querySelector('.tarea-card__status');
+    const targetUser = card.querySelector('.tarea-card__username');
 
-    if (dom.taskNameInput)   dom.taskNameInput.value   = title       || '';
-    if (dom.userTareaInput)  dom.userTareaInput.value   = description || '';
-    if (dom.taskStatusInput) dom.taskStatusInput.value  = status      || 'activa';
-    if (dom.userIDInput)   { dom.userIDInput.value    = documento || ''; dom.userIDInput.disabled   = true; }
-    if (dom.userNameInput) { dom.userNameInput.value  = userName  || ''; dom.userNameInput.disabled  = true; }
+    const title = targetTitle ? targetTitle.textContent : undefined;
+    const description = targetDesc ? targetDesc.textContent : undefined;
+
+    let status = '';
+    if (targetStatus && targetStatus.textContent) {
+        status = targetStatus.textContent.trim().toLowerCase();
+        if (!['pendiente', 'en proceso', 'completada'].includes(status)) {
+            status = 'pendiente';
+        }
+    }
+
+    const userName = targetUser ? targetUser.textContent : undefined;
+    const documento = card.dataset.documento;
+
+    if (dom.taskNameInput) dom.taskNameInput.value = title || '';
+    if (dom.userTareaInput) dom.userTareaInput.value = description || '';
+    if (dom.taskStatusInput) dom.taskStatusInput.value = status || '';
+    if (dom.userIDInput) { dom.userIDInput.value = documento || ''; dom.userIDInput.disabled = true; }
+    if (dom.userNameInput) { dom.userNameInput.value = userName || ''; dom.userNameInput.disabled = true; }
 
     editandoTareaId = tareaId;
 
@@ -293,16 +305,16 @@ async function manejarClickEliminar(tareaId) {
  * Delegación de eventos para los botones Editar/Eliminar.
  */
 export function manejarClickCard(e) {
-    const btn  = e.target.closest('button');
+    const btn = e.target.closest('button');
     if (!btn) return;
 
     const card = btn.closest('.tarea-card');
     if (!card) return;
 
     const tareaId = card.dataset.id;
-    const action  = btn.dataset.action;
+    const action = btn.dataset.action;
 
-    if (action === 'edit'   && tareaId) { e.preventDefault(); manejarClickEditar(tareaId);  }
+    if (action === 'edit' && tareaId) { e.preventDefault(); manejarClickEditar(tareaId); }
     if (action === 'delete' && tareaId) { e.preventDefault(); manejarClickEliminar(tareaId); }
 }
 
@@ -328,7 +340,7 @@ export async function handleFormSubmit(event) {
 
             if (usuario) {
                 if (dom.userNameInput) {
-                    dom.userNameInput.value    = usuario.nombre_completo;
+                    dom.userNameInput.value = usuario.nombre_completo;
                     dom.userNameInput.disabled = true;
                 }
                 habilitarFormularioTareas();
@@ -356,11 +368,11 @@ export async function handleFormSubmit(event) {
 
     // ── Validación pura (devuelve objeto, no toca el DOM) ──
     const valores = {
-        idVal:         dom.userIDInput?.value.trim()    ?? '',
-        nameVal:       dom.userNameInput?.value.trim()  ?? '',
-        taskTitleVal:  dom.taskNameInput?.value.trim()  ?? '',
-        taskStatusVal: dom.taskStatusInput?.value       ?? '',
-        taskDescVal:   dom.userTareaInput?.value.trim() ?? ''
+        idVal: dom.userIDInput?.value.trim() ?? '',
+        nameVal: dom.userNameInput?.value.trim() ?? '',
+        taskTitleVal: dom.taskNameInput?.value.trim() ?? '',
+        taskStatusVal: dom.taskStatusInput?.value ?? '',
+        taskDescVal: dom.userTareaInput?.value.trim() ?? ''
     };
 
     const { isValid, errors } = validateForm(valores, editandoTareaId, getCurrentUser());
@@ -369,8 +381,8 @@ export async function handleFormSubmit(event) {
     mostrarErroresFormulario(dom, errors);
     if (!isValid) return;
 
-    const taskTitle  = dom.taskNameInput.value.trim();
-    const taskDesc   = dom.userTareaInput.value.trim();
+    const taskTitle = dom.taskNameInput.value.trim();
+    const taskDesc = dom.userTareaInput.value.trim();
     const taskStatus = dom.taskStatusInput.value;
 
     try {
@@ -378,9 +390,9 @@ export async function handleFormSubmit(event) {
         // ── Flujo PATCH (actualizar) ───────────────────────
         if (editandoTareaId) {
             const tareaActualizada = await editarTarea(editandoTareaId, {
-                title:       taskTitle,
+                title: taskTitle,
                 description: taskDesc,
-                status:      taskStatus
+                status: taskStatus
             });
 
             actualizarCardEnDOM(editandoTareaId, tareaActualizada);
@@ -391,13 +403,13 @@ export async function handleFormSubmit(event) {
             // Recargar para sincronizar contador desde el backend
             await inicializarApp();
 
-        // ── Flujo POST (crear) ─────────────────────────────
+            // ── Flujo POST (crear) ─────────────────────────────
         } else {
             await crearTarea(taskTitle, taskDesc, taskStatus);
 
-            if (dom.taskNameInput)   dom.taskNameInput.value   = '';
-            if (dom.userTareaInput)  dom.userTareaInput.value   = '';
-            if (dom.taskStatusInput) dom.taskStatusInput.value  = 'activa';
+            if (dom.taskNameInput) dom.taskNameInput.value = '';
+            if (dom.userTareaInput) dom.userTareaInput.value = '';
+            if (dom.taskStatusInput) dom.taskStatusInput.value = '';
 
             alert('✅ Tarea asignada correctamente');
 
@@ -409,5 +421,44 @@ export async function handleFormSubmit(event) {
     } catch (error) {
         console.error('Error en la operación:', error);
         showError(dom.userTareaError, dom.userTareaInput, error.message);
+    }
+}
+
+
+/**
+ * Filtra las tareas en el DOM según el estado seleccionado en el dropdown.
+ */
+export function filtrarTareas(event) {
+    const filtro = event.target.value.toLowerCase(); // 'todas', 'pendiente', 'en proceso', 'completada'
+    const cards = dom.tareasContainerEl?.querySelectorAll('.tarea-card');
+
+    if (!cards) return;
+
+    let tareasVisibles = 0;
+
+    cards.forEach(card => {
+        const statusEl = card.querySelector('.tarea-card__status');
+        if (!statusEl) return;
+
+        // El texto o la clase nos dice el estado. Usamos la clase reemplazando el espacio por guion
+        // Ejemplo: 'en proceso' -> 'en-proceso'
+        const expectedClass = filtro.replace(' ', '-');
+
+        if (filtro === 'todas' || statusEl.classList.contains(expectedClass)) {
+            card.classList.remove('hidden');
+            tareasVisibles++;
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+
+    // Actualizamos el contador UI localmente (opcional pero ayuda al UX del filtro)
+    // Opcionalmente podemos dejar el total o mostrar "(X filtradas de Y)"
+    if (dom.tareaCountEl) {
+        if (filtro === 'todas') {
+            updateTareaCount(cards.length);
+        } else {
+            dom.tareaCountEl.textContent = `${tareasVisibles} Filtradas de ${cards.length}`;
+        }
     }
 }
