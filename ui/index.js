@@ -18,5 +18,6 @@ export {
     deshabilitarFormularioTareas,
     updateTareaCount,
     populateUserSuggestions,
-    filtrarTareas
+    filtrarTareas,
+    ordenarTareas
 } from './formulario.js';

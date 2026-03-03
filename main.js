@@ -25,7 +25,8 @@ import {
     deshabilitarFormularioTareas,
     populateUserSuggestions,
     updateTareaCount,
-    filtrarTareas
+    filtrarTareas,
+    ordenarTareas
 } from './ui/index.js';
 
 // import Swal from 'sweetalert2'
@@ -51,7 +52,9 @@ const dom = {
     usersList: document.getElementById('usersList'),
     emptyStateEl: document.getElementById('emptyState'),
     tareaCountEl: document.getElementById('tareaCount'),
-    filterStatusEl: document.getElementById('filterStatus')
+    filterStatusEl: document.getElementById('filterStatus'),
+    sortFieldEl: document.getElementById('sortField'),
+    sortBtnEl: document.getElementById('sortBtn')
 };
 
 
@@ -67,6 +70,7 @@ dom.userTareaInput?.addEventListener('input', handleInputChange);
 dom.taskStatusInput?.addEventListener('change', handleInputChange);
 dom.tareasContainerEl?.addEventListener('click', manejarClickCard);
 dom.filterStatusEl?.addEventListener('change', filtrarTareas);
+dom.sortBtnEl?.addEventListener('click', ordenarTareas);
 
 dom.userNameInput?.addEventListener('focus', () => {
     const idVal = dom.userIDInput?.value.replace(/\D+/g, '') || '';
