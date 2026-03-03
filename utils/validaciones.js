@@ -92,7 +92,7 @@ export function validateForm(valores, modoEdicion, currentUser) {
         errors.taskName = 'Nombre de la tarea requerido';
     }
 
-    if (!['activa', 'inactiva'].includes(taskStatusVal)) {
+    if (!['pendiente', 'en proceso', 'completada'].includes(taskStatusVal)) {
         errors.taskStatus = 'Estado inválido';
     }
 

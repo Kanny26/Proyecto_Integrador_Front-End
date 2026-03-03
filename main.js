@@ -25,7 +25,9 @@ import {
     handleExportTasks,
     deshabilitarFormularioTareas,
     populateUserSuggestions,
-    updateTareaCount
+    updateTareaCount,
+    filtrarTareas,
+    ordenarTareas
 } from './ui/index.js';
 
 

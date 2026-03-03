@@ -18,7 +18,9 @@ export {
     cancelarEdicion,
     deshabilitarFormularioTareas,
     updateTareaCount,
-    populateUserSuggestions
+    populateUserSuggestions,
+    filtrarTareas,
+    ordenarTareas
 } from './formulario.js';
 
 export { descargarArchivoJSON } from './descarga.js';
