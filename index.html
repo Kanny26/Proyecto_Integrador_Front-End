@@ -83,6 +83,13 @@
         <section class="messages-section">
             <div class="messages-header">
                 <h2 class="messages-header__title">Tareas Publicadas</h2>
+                <select id="filterStatus" class="form__input"
+                    style="padding: var(--spacing-xs) var(--spacing-md); font-size: var(--font-size-sm); min-width: 150px; cursor: pointer; border-radius: var(--radius-full); max-width: max-content;">
+                    <option value="todas">Todas las tareas</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en proceso">En proceso</option>
+                    <option value="completada">Completada</option>
+                </select>
                 <span class="messages-header__count" id="tareaCount">0 Tareas</span>
             </div>
 

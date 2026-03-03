@@ -423,3 +423,42 @@ export async function handleFormSubmit(event) {
         showError(dom.userTareaError, dom.userTareaInput, error.message);
     }
 }
+
+
+/**
+ * Filtra las tareas en el DOM según el estado seleccionado en el dropdown.
+ */
+export function filtrarTareas(event) {
+    const filtro = event.target.value.toLowerCase(); // 'todas', 'pendiente', 'en proceso', 'completada'
+    const cards = dom.tareasContainerEl?.querySelectorAll('.tarea-card');
+
+    if (!cards) return;
+
+    let tareasVisibles = 0;
+
+    cards.forEach(card => {
+        const statusEl = card.querySelector('.tarea-card__status');
+        if (!statusEl) return;
+
+        // El texto o la clase nos dice el estado. Usamos la clase reemplazando el espacio por guion
+        // Ejemplo: 'en proceso' -> 'en-proceso'
+        const expectedClass = filtro.replace(' ', '-');
+
+        if (filtro === 'todas' || statusEl.classList.contains(expectedClass)) {
+            card.classList.remove('hidden');
+            tareasVisibles++;
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+
+    // Actualizamos el contador UI localmente (opcional pero ayuda al UX del filtro)
+    // Opcionalmente podemos dejar el total o mostrar "(X filtradas de Y)"
+    if (dom.tareaCountEl) {
+        if (filtro === 'todas') {
+            updateTareaCount(cards.length);
+        } else {
+            dom.tareaCountEl.textContent = `${tareasVisibles} Filtradas de ${cards.length}`;
+        }
+    }
+}
