@@ -54,8 +54,9 @@
                         <div class="form__group">
                             <label for="taskStatus" class="form__label">Estado</label>
                             <select id="taskStatus" class="form__input" aria-required="true">
-                                <option value="activa">Activa</option>
-                                <option value="inactiva">Inactiva</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en proceso">En proceso</option>
+                                <option value="completada">Completada</option>
                             </select>
                             <span class="form__error" id="taskStatusError"></span>
                         </div>
@@ -110,7 +111,7 @@
             <p class="footer__text">Ejercicio de manipulación del DOM | SENA - Desarrollo Web</p>
         </footer>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="main.js"></script>
 </body>
 

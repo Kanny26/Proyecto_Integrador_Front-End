@@ -442,12 +442,19 @@ body {
     margin-top: var(--spacing-md);
 }
 
-.message-card__status.activa {
-    background-color: var(--color-success);
+.message-card__status.pendiente {
+    background-color: #f59e0b;
+    color: #fff;
 }
 
-.message-card__status.inactiva {
-    background-color: var(--color-error);
+.message-card__status.en-proceso {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+.message-card__status.completada {
+    background-color: var(--color-success);
+    color: #fff;
 }
 
 

@@ -52,6 +52,9 @@ const dom = {
     tareasContainerEl: document.getElementById('tareasContainer'),
     usersList: document.getElementById('usersList'),
     emptyStateEl: document.getElementById('emptyState'),
+    filterField: document.getElementById('filterField'),
+    sortFieldEl: document.getElementById('sortField'),
+    sortBtnEl: document.getElementById('sortBtn'),
     tareaCountEl: document.getElementById('tareaCount')
 };
 
@@ -68,6 +71,9 @@ dom.userTareaInput?.addEventListener('input', handleInputChange);
 dom.taskStatusInput?.addEventListener('change', handleInputChange);
 dom.tareasContainerEl?.addEventListener('click', manejarClickCard);
 dom.exportBtnEl?.addEventListener('click', handleExportTasks);
+dom.filterField?.addEventListener('change', filtrarTareas);
+dom.sortFieldEl?.addEventListener('change', ordenarTareas);
+dom.sortBtnEl?.addEventListener('click', ordenarTareas);
 
 dom.userNameInput?.addEventListener('focus', () => {
     const idVal = dom.userIDInput?.value.replace(/\D+/g, '') || '';

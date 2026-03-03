@@ -88,7 +88,7 @@ export function habilitarFormularioTareas() {
 
 export function deshabilitarFormularioTareas() {
     if (dom.taskNameInput) { dom.taskNameInput.disabled = true; dom.taskNameInput.value = ''; }
-    if (dom.taskStatusInput) { dom.taskStatusInput.disabled = true; dom.taskStatusInput.value = 'activa'; }
+    if (dom.taskStatusInput) { dom.taskStatusInput.disabled = true; dom.taskStatusInput.value = 'pendiente'; }
     if (dom.userTareaInput) { dom.userTareaInput.disabled = true; dom.userTareaInput.value = ''; }
 }
 
@@ -127,7 +127,7 @@ export function cancelarEdicion() {
 
     if (dom.taskNameInput) dom.taskNameInput.value = '';
     if (dom.userTareaInput) dom.userTareaInput.value = '';
-    if (dom.taskStatusInput) dom.taskStatusInput.value = 'activa';
+    if (dom.taskStatusInput) dom.taskStatusInput.value = 'pendiente';
 
     if (dom.submitBtnEl) {
         dom.submitBtnEl.querySelector('.btn__text').textContent = 'Asignar Tarea';
@@ -241,14 +241,14 @@ async function manejarClickEditar(tareaId) {
 
     const title = card.querySelector('.tarea-card__title')?.textContent;
     const description = card.querySelector('.tarea-card__content')?.textContent;
-    const status = card.querySelector('.tarea-card__status')?.classList.contains('activa')
-        ? 'activa' : 'inactiva';
+    const statusEl = card.querySelector('.tarea-card__status');
+    const status = statusEl?.textContent.toLowerCase().replace(/\s+/g, ' ');
     const userName = card.querySelector('.tarea-card__username')?.textContent;
     const documento = card.dataset.documento;
 
     if (dom.taskNameInput) dom.taskNameInput.value = title || '';
     if (dom.userTareaInput) dom.userTareaInput.value = description || '';
-    if (dom.taskStatusInput) dom.taskStatusInput.value = status || 'activa';
+    if (dom.taskStatusInput) dom.taskStatusInput.value = status || 'pendiente';
     if (dom.userIDInput) { dom.userIDInput.value = documento || ''; dom.userIDInput.disabled = true; }
     if (dom.userNameInput) { dom.userNameInput.value = userName || ''; dom.userNameInput.disabled = true; }
 
@@ -444,7 +444,7 @@ export async function handleFormSubmit(event) {
 
             if (dom.taskNameInput) dom.taskNameInput.value = '';
             if (dom.userTareaInput) dom.userTareaInput.value = '';
-            if (dom.taskStatusInput) dom.taskStatusInput.value = 'activa';
+            if (dom.taskStatusInput) dom.taskStatusInput.value = 'pendiente';
             alertNotiExito();
 
             // Recargar para sincronizar contador desde el backend
