@@ -27,9 +27,10 @@ import {
 } from '../services/index.js';
 
 import { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
-import { validateForm } from '../utils/index.js';
+import { validateForm, formatTasksToJSON } from '../utils/index.js';
 import { showError, clearError, mostrarErroresFormulario } from './errores.js';
-import { mostrarNotificacion } from './notificaciones.js';
+import { mostrarNotificacion, alertNotiExito, alertNotiInfo, alertNotiError, alertEditOk, alertDeleteConfirm } from './notificaciones.js';
+import { descargarArchivoJSON } from './index.js';
 
 
 // ==========================================================
@@ -87,7 +88,7 @@ export function habilitarFormularioTareas() {
 
 export function deshabilitarFormularioTareas() {
     if (dom.taskNameInput) { dom.taskNameInput.disabled = true; dom.taskNameInput.value = ''; }
-    if (dom.taskStatusInput) { dom.taskStatusInput.disabled = true; dom.taskStatusInput.value = ''; }
+    if (dom.taskStatusInput) { dom.taskStatusInput.disabled = true; dom.taskStatusInput.value = 'activa'; }
     if (dom.userTareaInput) { dom.userTareaInput.disabled = true; dom.userTareaInput.value = ''; }
 }
 
@@ -126,7 +127,7 @@ export function cancelarEdicion() {
 
     if (dom.taskNameInput) dom.taskNameInput.value = '';
     if (dom.userTareaInput) dom.userTareaInput.value = '';
-    if (dom.taskStatusInput) dom.taskStatusInput.value = '';
+    if (dom.taskStatusInput) dom.taskStatusInput.value = 'activa';
 
     if (dom.submitBtnEl) {
         dom.submitBtnEl.querySelector('.btn__text').textContent = 'Asignar Tarea';
@@ -134,6 +135,7 @@ export function cancelarEdicion() {
     }
 
     document.getElementById('btnCancelEdit')?.classList.add('hidden');
+    dom.tareaFormEl.reset();
 
     if (dom.userIDInput) dom.userIDInput.disabled = false;
     if (dom.userNameInput) dom.userNameInput.disabled = false;
@@ -233,31 +235,20 @@ export function handleInputChange(e) {
  * Carga los datos de una tarea en el formulario para editarla (PATCH).
  */
 async function manejarClickEditar(tareaId) {
+    alertNotiInfo(dom);
     const card = document.querySelector(`.tarea-card[data-id="${tareaId}"]`);
     if (!card) return;
 
-    const targetTitle = card.querySelector('.tarea-card__title');
-    const targetDesc = card.querySelector('.tarea-card__content');
-    const targetStatus = card.querySelector('.tarea-card__status');
-    const targetUser = card.querySelector('.tarea-card__username');
-
-    const title = targetTitle ? targetTitle.textContent : undefined;
-    const description = targetDesc ? targetDesc.textContent : undefined;
-
-    let status = '';
-    if (targetStatus && targetStatus.textContent) {
-        status = targetStatus.textContent.trim().toLowerCase();
-        if (!['pendiente', 'en proceso', 'completada'].includes(status)) {
-            status = 'pendiente';
-        }
-    }
-
-    const userName = targetUser ? targetUser.textContent : undefined;
+    const title = card.querySelector('.tarea-card__title')?.textContent;
+    const description = card.querySelector('.tarea-card__content')?.textContent;
+    const status = card.querySelector('.tarea-card__status')?.classList.contains('activa')
+        ? 'activa' : 'inactiva';
+    const userName = card.querySelector('.tarea-card__username')?.textContent;
     const documento = card.dataset.documento;
 
     if (dom.taskNameInput) dom.taskNameInput.value = title || '';
     if (dom.userTareaInput) dom.userTareaInput.value = description || '';
-    if (dom.taskStatusInput) dom.taskStatusInput.value = status || '';
+    if (dom.taskStatusInput) dom.taskStatusInput.value = status || 'activa';
     if (dom.userIDInput) { dom.userIDInput.value = documento || ''; dom.userIDInput.disabled = true; }
     if (dom.userNameInput) { dom.userNameInput.value = userName || ''; dom.userNameInput.disabled = true; }
 
@@ -282,7 +273,7 @@ async function manejarClickEditar(tareaId) {
  * el contador con el estado real de la base de datos.
  */
 async function manejarClickEliminar(tareaId) {
-    const confirmar = confirm('¿Desea eliminar esta tarea? Esta acción no se puede deshacer.');
+    const confirmar = await alertDeleteConfirm();
     if (!confirmar) return;
 
     try {
@@ -316,6 +307,46 @@ export function manejarClickCard(e) {
 
     if (action === 'edit' && tareaId) { e.preventDefault(); manejarClickEditar(tareaId); }
     if (action === 'delete' && tareaId) { e.preventDefault(); manejarClickEliminar(tareaId); }
+}
+
+
+/**
+ * Maneja la exportación de tareas a JSON descargable.
+ * Respeta la separación de responsabilidades:
+ * 1. Obtiene datos del servicio.
+ * 2. Formatea datos con una utilidad pura.
+ * 3. Gestiona la descarga con una utilidad de UI.
+ */
+export async function handleExportTasks() {
+    try {
+        mostrarNotificacion('Preparando exportación...');
+
+        // 1. Obtener los datos actuales de las tareas (Capa de Servicio)
+        const tareas = await cargarTareas();
+
+        if (tareas.length === 0) {
+            alertNotiInfo();
+            mostrarNotificacion('No hay tareas para exportar');
+            return;
+        }
+
+        // 2. Formatear los datos a JSON (Capa de Utilidades - Lógica pura)
+        const jsonString = formatTasksToJSON(tareas);
+
+        // 3. Disparar la descarga (Capa de UI - Interacción navegador)
+        const fechaActual = new Date().toISOString().split('T')[0];
+        const nombreArchivo = `tareas_reporte_${fechaActual}.json`;
+
+        descargarArchivoJSON(jsonString, nombreArchivo);
+
+        // alertNotiExito();
+        mostrarNotificacion('Exportación completada');
+
+    } catch (error) {
+        console.error('Error al exportar tareas:', error);
+        alertNotiError();
+        mostrarNotificacion('Fallo la exportación: ' + error.message);
+    }
 }
 
 
@@ -379,7 +410,11 @@ export async function handleFormSubmit(event) {
 
     // ── Mostrar errores en el DOM (ui/errores.js) ─────────
     mostrarErroresFormulario(dom, errors);
-    if (!isValid) return;
+    if (!isValid) {
+        alertNotiError();
+        return;
+    }
+
 
     const taskTitle = dom.taskNameInput.value.trim();
     const taskDesc = dom.userTareaInput.value.trim();
@@ -394,9 +429,9 @@ export async function handleFormSubmit(event) {
                 description: taskDesc,
                 status: taskStatus
             });
-
             actualizarCardEnDOM(editandoTareaId, tareaActualizada);
-            alert('✅ Tarea actualizada correctamente');
+
+            alertEditOk('✅ Tarea actualizada correctamente');
             dom.tareaFormEl.reset();
             cancelarEdicion();
 
@@ -409,9 +444,8 @@ export async function handleFormSubmit(event) {
 
             if (dom.taskNameInput) dom.taskNameInput.value = '';
             if (dom.userTareaInput) dom.userTareaInput.value = '';
-            if (dom.taskStatusInput) dom.taskStatusInput.value = '';
-
-            alert('✅ Tarea asignada correctamente');
+            if (dom.taskStatusInput) dom.taskStatusInput.value = 'activa';
+            alertNotiExito();
 
             // Recargar para sincronizar contador desde el backend
             // El contador es tareas.length del GET, no un incremento manual

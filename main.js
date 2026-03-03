@@ -22,6 +22,7 @@ import {
     handleFormSubmit,
     handleInputChange,
     manejarClickCard,
+    handleExportTasks,
     deshabilitarFormularioTareas,
     populateUserSuggestions,
     updateTareaCount,
@@ -29,7 +30,6 @@ import {
     ordenarTareas
 } from './ui/index.js';
 
-// import Swal from 'sweetalert2'
 
 // ==========================================================
 // 2. SELECCIÓN DE ELEMENTOS DEL DOM
@@ -43,6 +43,7 @@ const dom = {
     userTareaInput: document.getElementById('userTarea'),
     taskStatusInput: document.getElementById('taskStatus'),
     submitBtnEl: document.getElementById('submitBtn'),
+    exportBtnEl: document.getElementById('exportBtn'),
     userIDError: document.getElementById('userIDError'),
     userNameError: document.getElementById('userNameError'),
     taskNameError: document.getElementById('taskNameError'),
@@ -51,10 +52,7 @@ const dom = {
     tareasContainerEl: document.getElementById('tareasContainer'),
     usersList: document.getElementById('usersList'),
     emptyStateEl: document.getElementById('emptyState'),
-    tareaCountEl: document.getElementById('tareaCount'),
-    filterStatusEl: document.getElementById('filterStatus'),
-    sortFieldEl: document.getElementById('sortField'),
-    sortBtnEl: document.getElementById('sortBtn')
+    tareaCountEl: document.getElementById('tareaCount')
 };
 
 
@@ -69,8 +67,7 @@ dom.taskNameInput?.addEventListener('input', handleInputChange);
 dom.userTareaInput?.addEventListener('input', handleInputChange);
 dom.taskStatusInput?.addEventListener('change', handleInputChange);
 dom.tareasContainerEl?.addEventListener('click', manejarClickCard);
-dom.filterStatusEl?.addEventListener('change', filtrarTareas);
-dom.sortBtnEl?.addEventListener('click', ordenarTareas);
+dom.exportBtnEl?.addEventListener('click', handleExportTasks);
 
 dom.userNameInput?.addEventListener('focus', () => {
     const idVal = dom.userIDInput?.value.replace(/\D+/g, '') || '';
@@ -87,4 +84,5 @@ document.addEventListener('DOMContentLoaded', () => {
     deshabilitarFormularioTareas();
     updateTareaCount(0);
     inicializarApp();
+
 });

@@ -6,12 +6,13 @@
 
 export { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
 export { showError, clearError, mostrarErroresFormulario } from './errores.js';
-export { mostrarNotificacion } from './notificaciones.js';
+export { mostrarNotificacion, alertNotiExito, alertNotiInfo, alertNotiError } from './notificaciones.js';
 
 export {
     init,
     handleFormSubmit,
     handleInputChange,
+    handleExportTasks,
     manejarClickCard,
     inicializarApp,
     cancelarEdicion,
@@ -21,3 +22,5 @@ export {
     filtrarTareas,
     ordenarTareas
 } from './formulario.js';
+
+export { descargarArchivoJSON } from './descarga.js';

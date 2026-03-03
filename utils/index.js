@@ -15,3 +15,5 @@ export {
     getInitials,
     validateForm
 } from './validaciones.js';
+
+export { formatTasksToJSON } from './exportUtils.js';

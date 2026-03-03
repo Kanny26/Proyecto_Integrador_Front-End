@@ -17,5 +17,14 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DAPUERTO/Proyecto_Integrador_Front-End.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DAPUERTO/Proyecto_Integrador_Front-End/issues"
+  },
+  "homepage": "https://github.com/DAPUERTO/Proyecto_Integrador_Front-End#readme"
 }

@@ -54,10 +54,8 @@
                         <div class="form__group">
                             <label for="taskStatus" class="form__label">Estado</label>
                             <select id="taskStatus" class="form__input" aria-required="true">
-                                <option value="" disabled selected hidden>Default</option>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="en proceso">En proceso</option>
-                                <option value="completada">Completada</option>
+                                <option value="activa">Activa</option>
+                                <option value="inactiva">Inactiva</option>
                             </select>
                             <span class="form__error" id="taskStatusError"></span>
                         </div>
@@ -83,23 +81,13 @@
         <section class="messages-section">
             <div class="messages-header">
                 <h2 class="messages-header__title">Tareas Publicadas</h2>
-                <select id="filterStatus" class="form__input messages-filter">
-                    <option value="todas">Todas las tareas</option>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="en proceso">En proceso</option>
-                    <option value="completada">Completada</option>
-                </select>
-                <div class="messages-sort-container">
-                    <select id="sortField" class="form__input messages-sort-select">
-                        <option value="fecha">Ordenar por: Fecha</option>
-                        <option value="estado">Ordenar por: Estado</option>
-                        <option value="nombre">Ordenar por: Nombre</option>
-                    </select>
-                    <button type="button" class="btn btn--sort" id="sortBtn" data-dir="desc">
-                        Ordenar ↓
+                <div class="messages-header__actions">
+                    <span class="messages-header__count" id="tareaCount">0 Tareas</span>
+                    <button type="button" class="btn btn--export" id="exportBtn" title="Exportar tareas a JSON">
+                        <span class="btn__icon">📥</span>
+                        <span class="btn__text">Exportar JSON</span>
                     </button>
                 </div>
-                <span class="messages-header__count" id="tareaCount">0 Tareas</span>
             </div>
 
             <div id="tareasContainer" class="messages-container">
