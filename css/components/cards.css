@@ -127,3 +127,59 @@
     background-color: var(--color-primary);
     color: white;
 }
+
+/* ============================================
+   COMPONENTE: perfil-card
+   ============================================ */
+
+.perfil-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-surface);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.perfil-card__user {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.perfil-card__avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    flex-shrink: 0;
+}
+
+.perfil-card__username {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+}
+
+.perfil-card__logout {
+    background-color: var(--color-error);
+    color: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    transition: background-color var(--transition-base), transform var(--transition-base);
+}
+
+.perfil-card__logout:hover {
+    background-color: #c53030;
+    transform: translateY(-1px);
+}
