@@ -30,7 +30,7 @@ import { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
 import { validateForm, formatTasksToJSON } from '../utils/index.js';
 import { showError, clearError, mostrarErroresFormulario } from './errores.js';
 import { mostrarNotificacion, alertNotiExito, alertNotiInfo, alertNotiError, alertEditOk, alertDeleteConfirm } from './notificaciones.js';
-import { descargarArchivoJSON } from './index.js';
+import { descargarArchivoJSON } from './descarga.js';
 
 
 // ==========================================================
@@ -103,6 +103,32 @@ export function populateUserSuggestions(documentNumber) {
             opt.value = u.nombre_completo;
             dom.usersList.appendChild(opt);
         });
+}
+
+/**
+ * Popula el datalist de documentos con el formato "documento - nombre".
+ */
+export async function populateDocSuggestions() {
+    if (!dom.docsList) return;
+    
+    try {
+        // Asegurarse de tener usuarios en el caché
+        let usuarios = getCachedUsers();
+        if (usuarios.length === 0) {
+            await buscarUsuario(''); // Fuerza la carga de usuarios al caché
+            usuarios = getCachedUsers();
+        }
+
+        dom.docsList.innerHTML = '';
+        usuarios.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.documento;
+            opt.textContent = `${u.documento} - ${u.nombre_completo}`;
+            dom.docsList.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('Error al cargar sugerencias de documentos:', error);
+    }
 }
 
 function mostrarBotonCancelar() {
@@ -200,7 +226,7 @@ export async function inicializarApp() {
 /**
  * Sanitiza inputs y limpia errores en tiempo real.
  */
-export function handleInputChange(e) {
+export async function handleInputChange(e) {
     const target = e.target;
     if (!target) return;
 
@@ -213,14 +239,35 @@ export function handleInputChange(e) {
 
         if (!cleaned && dom.usersList) dom.usersList.innerHTML = '';
 
-        // Si cambia el documento se invalida el usuario cargado
-        if (getCurrentUser()) {
-            setCurrentUser(null);
-            deshabilitarFormularioTareas();
+        // Auto-fill logic
+        if (cleaned.length >= 3) {
+            try {
+                const usuarioMatch = await buscarUsuario(cleaned);
+                if (usuarioMatch) {
+                    if (dom.userNameInput) {
+                        dom.userNameInput.value = usuarioMatch.nombre_completo;
+                        dom.userNameInput.disabled = true;
+                    }
+                    habilitarFormularioTareas();
+                    clearError(dom.userIDError, dom.userIDInput);
+                } else {
+                    if (dom.userNameInput) {
+                        dom.userNameInput.value = '';
+                        dom.userNameInput.disabled = false;
+                    }
+                    setCurrentUser(null);
+                    deshabilitarFormularioTareas();
+                }
+            } catch (err) {
+                console.error('Error al auto-completar usuario:', err);
+            }
+        } else {
             if (dom.userNameInput) {
                 dom.userNameInput.value = '';
                 dom.userNameInput.disabled = false;
             }
+            setCurrentUser(null);
+            deshabilitarFormularioTareas();
         }
     }
 

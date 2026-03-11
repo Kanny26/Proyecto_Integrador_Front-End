@@ -25,6 +25,7 @@ import {
     handleExportTasks,
     deshabilitarFormularioTareas,
     populateUserSuggestions,
+    populateDocSuggestions,
     updateTareaCount,
     filtrarTareas,
     ordenarTareas, 
@@ -56,6 +57,7 @@ const dom = {
     filterField: document.getElementById('filterField'),
     sortFieldEl: document.getElementById('sortField'),
     sortBtnEl: document.getElementById('sortBtn'),
+    docsList: document.getElementById('docsList'),
     tareaCountEl: document.getElementById('tareaCount')
 };
 
@@ -66,6 +68,7 @@ const dom = {
 
 dom.tareaFormEl?.addEventListener('submit', handleFormSubmit);
 dom.userIDInput?.addEventListener('input', handleInputChange);
+dom.userIDInput?.addEventListener('focus', populateDocSuggestions);
 dom.userNameInput?.addEventListener('input', handleInputChange);
 dom.taskNameInput?.addEventListener('input', handleInputChange);
 dom.userTareaInput?.addEventListener('input', handleInputChange);
