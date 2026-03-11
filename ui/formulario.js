@@ -478,7 +478,7 @@ export function filtrarTareas(event) {
         // Ejemplo: 'en proceso' -> 'en-proceso'
         const expectedClass = filtro.replace(' ', '-');
 
-        if (filtro === 'todas' || statusEl.classList.contains(expectedClass)) {
+        if (filtro === '' || filtro === 'todas' || statusEl.classList.contains(expectedClass)) {
             card.classList.remove('hidden');
             tareasVisibles++;
         } else {
@@ -489,7 +489,7 @@ export function filtrarTareas(event) {
     // Actualizamos el contador UI localmente (opcional pero ayuda al UX del filtro)
     // Opcionalmente podemos dejar el total o mostrar "(X filtradas de Y)"
     if (dom.tareaCountEl) {
-        if (filtro === 'todas') {
+        if (filtro === '' || filtro === 'todas') {
             updateTareaCount(cards.length);
         } else {
             dom.tareaCountEl.textContent = `${tareasVisibles} Filtradas de ${cards.length}`;
@@ -665,10 +665,6 @@ export function crearControlesFiltroyOrdenamiento() {
 
     if (tareaCountEl && !actionsDiv.contains(tareaCountEl)) {
         actionsDiv.appendChild(tareaCountEl);
-    }
-
-    if (exportBtn && !actionsDiv.contains(exportBtn)) {
-        actionsDiv.appendChild(exportBtn);
     }
 
     console.log('Controles de filtrado y ordenamiento creados');
