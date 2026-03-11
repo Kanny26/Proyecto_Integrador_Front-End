@@ -19,6 +19,7 @@ export {
     deshabilitarFormularioTareas,
     updateTareaCount,
     populateUserSuggestions,
+    populateDocSuggestions,
     filtrarTareas,
     ordenarTareas,
     crearControlesFiltroyOrdenamiento

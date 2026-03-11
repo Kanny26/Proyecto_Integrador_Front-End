@@ -25,9 +25,10 @@
                         <label for="userID" class="form__label">
                             Numero de Documento
                         </label>
-                        <input type="text" id="userID" class="form__input" placeholder="Ingresa tu documento"
+                        <input type="text" id="userID" list="docsList" class="form__input" placeholder="Ingresa tu documento"
                             aria-required="true" autocomplete="off" required>
                         <span class="form__error" id="userIDError"></span>
+                        <datalist id="docsList"></datalist>
                     </div>
 
                     <div class="form__group">
