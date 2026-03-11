@@ -4,17 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestion de Tareas</title>
+    <title>Sistema de Gestión de Tareas - Login</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
-    <div class="container">
-        <!-- Encabezado principal -->
-        <header class="header">
-            <h1 class="header__title">Inicio Sesion</h1>
-        </header>
+<body class="page-login">
+    <div class="login-wrapper">
+        <div class="login-container">
+            <!-- Encabezado -->
+            <header class="header">
+                <h1 class="header__title">Inicio de Sesión</h1>
+            </header>
 
+            <!-- Sección de Login -->
+            <section class="form-section">
+                <div class="card">
+                    <h2 class="card__title">Identificarse</h2>
+
+                    <form id="loginForm" class="form" novalidate autocomplete="off">
+                        <div class="form__group">
+                            <label for="loginID" class="form__label">
+                                Número de Documento
+                            </label>
+                            <input type="text" id="loginID" class="form__input" placeholder="Ingresa tu documento"
+                                aria-required="true" autocomplete="off" required>
+                            <span class="form__error" id="loginIDError"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn--primary" id="loginBtn">
+                            <span class="btn__text">Entrar</span>
+                            <span class="btn__icon">➤</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Footer informativo -->
+            <footer class="login-footer">
+                <p class="footer__text">Ejercicio de manipulación del DOM | SENA - Desarrollo Web</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="main.js"></script>
 </body>
 
 </html>
