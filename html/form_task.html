@@ -86,10 +86,12 @@
                 <div class="messages-header__actions">
                 </div>
             </div>
-            <button type="button" class="btn btn--export" id="exportBtn" title="Exportar tareas a JSON">
-                <span class="btn__icon">📥</span>
-                <span class="btn__text">Exportar JSON</span>
-            </button>
+            <div class="messages-export-container">
+                <button type="button" class="btn btn--export" id="exportBtn" title="Exportar tareas a JSON">
+                    <span class="btn__icon">📥</span>
+                    <span class="btn__text">Exportar JSON</span>
+                </button>
+            </div>
             <div id="tareasContainer" class="messages-container">
                 <!-- Los mensajes se agregarán aquí dinámicamente -->
                 <div class="messages-empty" id="emptyState">
