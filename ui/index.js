@@ -5,6 +5,7 @@
  */
 
 export { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
+export { createCardPerfil } from './cardPerfil.js';
 export { showError, clearError, mostrarErroresFormulario } from './errores.js';
 export { mostrarNotificacion, alertNotiExito, alertNotiInfo, alertNotiError } from './notificaciones.js';
 

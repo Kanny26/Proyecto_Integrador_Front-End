@@ -28,8 +28,9 @@ import {
     populateDocSuggestions,
     updateTareaCount,
     filtrarTareas,
-    ordenarTareas, 
-    crearControlesFiltroyOrdenamiento
+    ordenarTareas,
+    crearControlesFiltroyOrdenamiento,
+    createCardPerfil
 } from './ui/index.js';
 
 
@@ -101,6 +102,17 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.sortBtnEl?.addEventListener('click', ordenarTareas);
     
     
+    // ── Card de perfil ────────────────────────────────────
+    const perfilContainer = document.getElementById('perfilContainer');
+    if (perfilContainer) {
+        const userName = sessionStorage.getItem('userName') || 'Usuario';
+        const cardPerfil = createCardPerfil(userName, () => {
+            sessionStorage.clear();
+            window.location.href = '../index.html';
+        });
+        perfilContainer.appendChild(cardPerfil);
+    }
+
     init(dom);
     deshabilitarFormularioTareas();
     updateTareaCount(0);
