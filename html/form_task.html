@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestion de Tareas</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 
 <body>
@@ -82,15 +82,14 @@
         <section class="messages-section">
             <div class="messages-header">
                 <h2 class="messages-header__title">Tareas Publicadas</h2>
+                <span class="messages-header__count" id="tareaCount">0 Tareas</span>
                 <div class="messages-header__actions">
-                    <span class="messages-header__count" id="tareaCount">0 Tareas</span>
-                    <button type="button" class="btn btn--export" id="exportBtn" title="Exportar tareas a JSON">
-                        <span class="btn__icon">📥</span>
-                        <span class="btn__text">Exportar JSON</span>
-                    </button>
                 </div>
             </div>
-
+            <button type="button" class="btn btn--export" id="exportBtn" title="Exportar tareas a JSON">
+                <span class="btn__icon">📥</span>
+                <span class="btn__text">Exportar JSON</span>
+            </button>
             <div id="tareasContainer" class="messages-container">
                 <!-- Los mensajes se agregarán aquí dinámicamente -->
                 <div class="messages-empty" id="emptyState">
@@ -104,6 +103,7 @@
                 </div>
 
             </div>
+
         </section>
 
         <!-- Footer informativo -->
@@ -112,7 +112,7 @@
         </footer>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="main.js"></script>
+    <script type="module" src="../main.js"></script>
 </body>
 
 </html>
