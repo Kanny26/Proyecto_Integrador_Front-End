@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Usuarios</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="header__title">Administración de Usuarios</h1>
+        </header>
+
+        <section class="form-section">
+            <div class="card">
+                <div class="messages-header">
+                    <h2 class="messages-header__title">Usuarios registrados</h2>
+                    <span class="messages-header__count" id="userCount">0 Usuarios</span>
+                </div>
+
+                <div class="messages-export-container">
+                    <button type="button" class="btn btn--primary" id="newUserBtn">
+                        <span class="btn__icon">＋</span>
+                        <span class="btn__text">Nuevo usuario</span>
+                    </button>
+                </div>
+
+                <div id="usersTableContainer">
+                    <table class="users-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Documento</th>
+                                <th>Nombre</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Las filas se generan dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p class="footer__text">Ejercicio de manipulación del DOM | SENA - Desarrollo Web</p>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="../ui/adminUsers.js"></script>
+</body>
+
+</html>

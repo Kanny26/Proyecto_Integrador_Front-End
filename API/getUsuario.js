@@ -1,10 +1,10 @@
 /**
  * ==========================================================
- * API – GET /usuarios
+ * API – GET /api/users
  * ==========================================================
  */
 
-const API_BASE_URL = 'http://localhost:3000';
+import { API_BASE_URL } from './config.js';
 
 /**
  * Obtiene todos los usuarios desde el backend.
@@ -13,7 +13,7 @@ const API_BASE_URL = 'http://localhost:3000';
  */
 export async function getUsuarios() {
     try {
-        const response = await fetch(`${API_BASE_URL}/usuarios`);
+        const response = await fetch(`${API_BASE_URL}/users`);
 
         if (!response.ok) {
             throw new Error(`El servidor respondió con error ${response.status} al obtener los usuarios`);
@@ -23,7 +23,7 @@ export async function getUsuarios() {
 
     } catch (error) {
         if (error instanceof TypeError) {
-            throw new Error('No se puede conectar al servidor. Verifica que json-server esté corriendo en el puerto 3000');
+            throw new Error('No se puede conectar al servidor. Verifica que el backend esté corriendo en el puerto 3000');
         }
         throw error;
     }

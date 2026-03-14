@@ -1,10 +1,10 @@
 /**
  * ==========================================================
- * API – PATCH /tasks/:id
+ * API – PATCH /api/tasks/:id
  * ==========================================================
  */
 
-const API_BASE_URL = 'http://localhost:3000';
+import { API_BASE_URL } from './config.js';
 
 /**
  * Actualiza parcialmente una tarea existente.
@@ -33,7 +33,7 @@ export async function actualizarTarea(id, nuevosDatos) {
 
     } catch (error) {
         if (error instanceof TypeError) {
-            throw new Error('No se puede conectar al servidor. Verifica que json-server esté corriendo en el puerto 3000');
+            throw new Error('No se puede conectar al servidor. Verifica que el backend esté corriendo en el puerto 3000');
         }
         throw error;
     }
