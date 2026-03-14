@@ -22,26 +22,16 @@
 
                 <form id="tareaForm" class="form" novalidate autocomplete="off">
                     <div class="form__group">
-                        <label for="userID" class="form__label">
-                            Numero de Documento
+                        <label for="usuariosAsignados" class="form__label">
+                            Usuarios asignados
                         </label>
-                        <input type="text" id="userID" list="docsList" class="form__input" placeholder="Ingresa tu documento"
-                            aria-required="true" autocomplete="off" required>
-                        <span class="form__error" id="userIDError"></span>
-                        <datalist id="docsList"></datalist>
+                        <select id="usuariosAsignados" class="form__input" multiple aria-required="true">
+                            <!-- Las opciones se cargan dinámicamente desde la API -->
+                        </select>
+                        <span class="form__error" id="usuariosAsignadosError"></span>
                     </div>
 
                     <div class="form__group">
-                        <label for="userName" class="form__label">
-                            Nombre de usuario
-                        </label>
-                        <input type="text" id="userName" list="usersList" class="form__input"
-                            placeholder="Ingresa tu nombre" aria-required="true" autocomplete="off">
-                        <span class="form__error" id="userNameError"></span>
-
-
-                        <!-- Datalist para sugerencias de usuario según documento -->
-                        <datalist id="usersList"></datalist>
 
                         <!-- Nuevo campo: Nombre de la tarea -->
                         <div class="form__group">
