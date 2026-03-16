@@ -21,7 +21,8 @@ import {
     postTarea,
     eliminarTarea,
     getUsuarios,
-    actualizarTarea
+    actualizarTarea,
+    assignUsersToTask
 } from '../API/index.js';
 
 import { getCurrentTimestamp } from '../utils/index.js';
@@ -179,4 +180,14 @@ export async function borrarTarea(id) {
     return true;
     // Sin decremento manual: el contador lo calcula
     // la UI desde tareas.length después del GET de sincronización
+}
+
+/**
+ * Asigna uno o varios usuarios a una tarea existente.
+ * @param {string|number} taskId
+ * @param {Array<string|number>} userIds
+ * @returns {Promise<Object>} Tarea actualizada
+ */
+export async function asignarUsuariosATarea(taskId, userIds) {
+    return await assignUsersToTask(taskId, userIds);
 }

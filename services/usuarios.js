@@ -4,22 +4,30 @@
  * ==========================================================
  */
 
+import { getUsuarios, createUser, updateUser, deleteUser, toggleUserStatus } from '../API/index.js';
+import { setCachedUsers } from './tareas.js';
+
 /**
  * Carga todos los usuarios desde la API y los almacena en caché.
  * Llama a getUsuarios() y actualiza el estado interno.
  */
 export async function cargarUsuarios() {
-    // TODO: implementar
+    const usuarios = await getUsuarios();
+    setCachedUsers(usuarios);
+    return usuarios;
 }
 
 /**
  * Crea un nuevo usuario llamando a createUser() de la API.
  * Valida los datos antes de enviar.
- * @param {Object} datosUsuario - { nombre, documento, rol, ... }
+ * @param {Object} datosUsuario - { nombre_completo, documento, rol, ... }
  * @returns {Promise<Object>} Usuario creado
  */
 export async function crearUsuario(datosUsuario) {
-    // TODO: implementar
+    if (!datosUsuario.nombre_completo || !datosUsuario.documento) {
+        throw new Error('El nombre y el documento son obligatorios');
+    }
+    return await createUser(datosUsuario);
 }
 
 /**
@@ -29,7 +37,7 @@ export async function crearUsuario(datosUsuario) {
  * @returns {Promise<Object>} Usuario actualizado
  */
 export async function editarUsuario(id, nuevosDatos) {
-    // TODO: implementar
+    return await updateUser(id, nuevosDatos);
 }
 
 /**
@@ -38,7 +46,7 @@ export async function editarUsuario(id, nuevosDatos) {
  * @returns {Promise<true>}
  */
 export async function eliminarUsuario(id) {
-    // TODO: implementar
+    return await deleteUser(id);
 }
 
 /**
@@ -49,5 +57,5 @@ export async function eliminarUsuario(id) {
  * @returns {Promise<Object>} Usuario con estado actualizado
  */
 export async function cambiarEstadoUsuario(id, estadoActual) {
-    // TODO: implementar
+    return await toggleUserStatus(id, estadoActual);
 }

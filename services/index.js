@@ -21,7 +21,8 @@ export {
     cargarTareas,
     crearTarea,
     editarTarea,
-    borrarTarea
+    borrarTarea,
+    asignarUsuariosATarea
 } from './tareas.js';
 
 export {

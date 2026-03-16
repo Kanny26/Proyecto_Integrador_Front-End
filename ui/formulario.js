@@ -21,6 +21,7 @@ import {
     crearTarea,
     editarTarea,
     borrarTarea,
+    asignarUsuariosATarea,
     getCurrentUser,
     getCachedUsers,
     setCurrentUser
@@ -183,7 +184,22 @@ export function cancelarEdicion() {
  */
 export async function inicializarApp() {
     try {
-        const tareas = await cargarTareas();
+        const todasLasTareas = await cargarTareas();
+
+        // Detectar si estamos en modo usuario (no admin): filtrar por userId
+        let modoUsuario = false;
+        let tareas = todasLasTareas;
+
+        const storedUser = sessionStorage.getItem('currentUser');
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                if (user.rol !== 'admin') {
+                    modoUsuario = true;
+                    tareas = todasLasTareas.filter(t => String(t.userId) === String(user.id));
+                }
+            } catch (_) { /* sessionStorage corrupto: mostrar todas */ }
+        }
 
         dom.tareasContainerEl.innerHTML = '';
 
@@ -202,7 +218,8 @@ export async function inicializarApp() {
                 tarea.description,
                 tarea.status,
                 tarea.fecha,
-                tarea.documento
+                tarea.documento,
+                modoUsuario
             );
             dom.tareasContainerEl.appendChild(card);
         });
@@ -340,7 +357,23 @@ async function manejarClickEliminar(tareaId) {
 
 
 /**
- * Delegación de eventos para los botones Editar/Eliminar.
+ * Marca una tarea como completada (modo usuario).
+ */
+async function manejarClickCompletar(tareaId, btn) {
+    try {
+        const tareaActualizada = await editarTarea(tareaId, { status: 'completada' });
+        actualizarCardEnDOM(tareaId, tareaActualizada);
+        if (btn) { btn.disabled = true; btn.textContent = 'Completada ✓'; }
+        mostrarNotificacion('Tarea marcada como completada');
+    } catch (error) {
+        console.error('Error al completar la tarea:', error);
+        mostrarNotificacion('Error al actualizar la tarea: ' + error.message);
+    }
+}
+
+
+/**
+ * Delegación de eventos para los botones Editar/Eliminar/Completar.
  */
 export function manejarClickCard(e) {
     const btn = e.target.closest('button');
@@ -352,8 +385,9 @@ export function manejarClickCard(e) {
     const tareaId = card.dataset.id;
     const action = btn.dataset.action;
 
-    if (action === 'edit' && tareaId) { e.preventDefault(); manejarClickEditar(tareaId); }
-    if (action === 'delete' && tareaId) { e.preventDefault(); manejarClickEliminar(tareaId); }
+    if (action === 'edit'     && tareaId) { e.preventDefault(); manejarClickEditar(tareaId); }
+    if (action === 'delete'   && tareaId) { e.preventDefault(); manejarClickEliminar(tareaId); }
+    if (action === 'complete' && tareaId) { e.preventDefault(); manejarClickCompletar(tareaId, btn); }
 }
 
 
@@ -436,8 +470,9 @@ export async function handleFormSubmit(event) {
     }
 
     // Validar coherencia de documento con usuario cargado
+    // Solo aplica cuando el input de documento existe (form_admin_task no lo tiene)
     const usuarioActual = getCurrentUser();
-    if (!editandoTareaId && usuarioActual && String(usuarioActual.documento) !== String(userID)) {
+    if (!editandoTareaId && usuarioActual && dom.userIDInput && String(usuarioActual.documento) !== String(userID)) {
         showError(dom.userIDError, dom.userIDInput, 'El documento no coincide con el usuario cargado');
         setCurrentUser(null);
         deshabilitarFormularioTareas();
@@ -445,9 +480,14 @@ export async function handleFormSubmit(event) {
     }
 
     // ── Validación pura (devuelve objeto, no toca el DOM) ──
+    // Si no hay input de documento/nombre (form admin), usar los del usuario de sesión
     const valores = {
-        idVal: dom.userIDInput?.value.trim() ?? '',
-        nameVal: dom.userNameInput?.value.trim() ?? '',
+        idVal: dom.userIDInput
+            ? (dom.userIDInput.value.trim())
+            : (getCurrentUser()?.documento ?? ''),
+        nameVal: dom.userNameInput
+            ? (dom.userNameInput.value.trim())
+            : (getCurrentUser()?.nombre_completo ?? ''),
         taskTitleVal: dom.taskNameInput?.value.trim() ?? '',
         taskStatusVal: dom.taskStatusInput?.value ?? '',
         taskDescVal: dom.userTareaInput?.value.trim() ?? ''
@@ -487,11 +527,23 @@ export async function handleFormSubmit(event) {
 
             // ── Flujo POST (crear) ─────────────────────────────
         } else {
-            await crearTarea(taskTitle, taskDesc, taskStatus);
+            const tareaCreada = await crearTarea(taskTitle, taskDesc, taskStatus);
 
-            if (dom.taskNameInput) dom.taskNameInput.value = '';
+            // Asignar usuarios si estamos en form_admin_task (multi-select presente)
+            if (dom.usuariosAsignadosEl && tareaCreada?.id) {
+                const selectedIds = Array.from(dom.usuariosAsignadosEl.selectedOptions)
+                    .map(opt => opt.value);
+                if (selectedIds.length > 0) {
+                    await asignarUsuariosATarea(tareaCreada.id, selectedIds);
+                }
+            }
+
+            if (dom.taskNameInput)  dom.taskNameInput.value  = '';
             if (dom.userTareaInput) dom.userTareaInput.value = '';
             if (dom.taskStatusInput) dom.taskStatusInput.value = 'pendiente';
+            if (dom.usuariosAsignadosEl) {
+                Array.from(dom.usuariosAsignadosEl.options).forEach(o => o.selected = false);
+            }
             alertNotiExito();
 
             // Recargar para sincronizar contador desde el backend
