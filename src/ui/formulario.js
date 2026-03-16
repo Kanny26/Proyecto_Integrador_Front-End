@@ -21,6 +21,7 @@ import {
     crearTarea,
     editarTarea,
     borrarTarea,
+    asignarUsuariosATarea,
     getCurrentUser,
     getCachedUsers,
     setCurrentUser
@@ -30,7 +31,7 @@ import { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
 import { validateForm, formatTasksToJSON } from '../utils/index.js';
 import { showError, clearError, mostrarErroresFormulario } from './errores.js';
 import { mostrarNotificacion, alertNotiExito, alertNotiInfo, alertNotiError, alertEditOk, alertDeleteConfirm } from './notificaciones.js';
-import { descargarArchivoJSON } from './index.js';
+import { descargarArchivoJSON } from './descarga.js';
 
 
 // ==========================================================
@@ -105,6 +106,32 @@ export function populateUserSuggestions(documentNumber) {
         });
 }
 
+/**
+ * Popula el datalist de documentos con el formato "documento - nombre".
+ */
+export async function populateDocSuggestions() {
+    if (!dom.docsList) return;
+    
+    try {
+        // Asegurarse de tener usuarios en el caché
+        let usuarios = getCachedUsers();
+        if (usuarios.length === 0) {
+            await buscarUsuario(''); // Fuerza la carga de usuarios al caché
+            usuarios = getCachedUsers();
+        }
+
+        dom.docsList.innerHTML = '';
+        usuarios.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.documento;
+            opt.textContent = `${u.documento} - ${u.nombre_completo}`;
+            dom.docsList.appendChild(opt);
+        });
+    } catch (error) {
+        console.error('Error al cargar sugerencias de documentos:', error);
+    }
+}
+
 function mostrarBotonCancelar() {
     let btnCancel = document.getElementById('btnCancelEdit');
 
@@ -157,7 +184,22 @@ export function cancelarEdicion() {
  */
 export async function inicializarApp() {
     try {
-        const tareas = await cargarTareas();
+        const todasLasTareas = await cargarTareas();
+
+        // Detectar si estamos en modo usuario (no admin): filtrar por userId
+        let modoUsuario = false;
+        let tareas = todasLasTareas;
+
+        const storedUser = sessionStorage.getItem('currentUser');
+        if (storedUser) {
+            try {
+                const user = JSON.parse(storedUser);
+                if (user.rol !== 'admin') {
+                    modoUsuario = true;
+                    tareas = todasLasTareas.filter(t => String(t.userId) === String(user.id));
+                }
+            } catch (_) { /* sessionStorage corrupto: mostrar todas */ }
+        }
 
         dom.tareasContainerEl.innerHTML = '';
 
@@ -176,7 +218,8 @@ export async function inicializarApp() {
                 tarea.description,
                 tarea.status,
                 tarea.fecha,
-                tarea.documento
+                tarea.documento,
+                modoUsuario
             );
             dom.tareasContainerEl.appendChild(card);
         });
@@ -200,7 +243,7 @@ export async function inicializarApp() {
 /**
  * Sanitiza inputs y limpia errores en tiempo real.
  */
-export function handleInputChange(e) {
+export async function handleInputChange(e) {
     const target = e.target;
     if (!target) return;
 
@@ -213,14 +256,35 @@ export function handleInputChange(e) {
 
         if (!cleaned && dom.usersList) dom.usersList.innerHTML = '';
 
-        // Si cambia el documento se invalida el usuario cargado
-        if (getCurrentUser()) {
-            setCurrentUser(null);
-            deshabilitarFormularioTareas();
+        // Auto-fill logic
+        if (cleaned.length >= 3) {
+            try {
+                const usuarioMatch = await buscarUsuario(cleaned);
+                if (usuarioMatch) {
+                    if (dom.userNameInput) {
+                        dom.userNameInput.value = usuarioMatch.nombre_completo;
+                        dom.userNameInput.disabled = true;
+                    }
+                    habilitarFormularioTareas();
+                    clearError(dom.userIDError, dom.userIDInput);
+                } else {
+                    if (dom.userNameInput) {
+                        dom.userNameInput.value = '';
+                        dom.userNameInput.disabled = false;
+                    }
+                    setCurrentUser(null);
+                    deshabilitarFormularioTareas();
+                }
+            } catch (err) {
+                console.error('Error al auto-completar usuario:', err);
+            }
+        } else {
             if (dom.userNameInput) {
                 dom.userNameInput.value = '';
                 dom.userNameInput.disabled = false;
             }
+            setCurrentUser(null);
+            deshabilitarFormularioTareas();
         }
     }
 
@@ -293,7 +357,23 @@ async function manejarClickEliminar(tareaId) {
 
 
 /**
- * Delegación de eventos para los botones Editar/Eliminar.
+ * Marca una tarea como completada (modo usuario).
+ */
+async function manejarClickCompletar(tareaId, btn) {
+    try {
+        const tareaActualizada = await editarTarea(tareaId, { status: 'completada' });
+        actualizarCardEnDOM(tareaId, tareaActualizada);
+        if (btn) { btn.disabled = true; btn.textContent = 'Completada ✓'; }
+        mostrarNotificacion('Tarea marcada como completada');
+    } catch (error) {
+        console.error('Error al completar la tarea:', error);
+        mostrarNotificacion('Error al actualizar la tarea: ' + error.message);
+    }
+}
+
+
+/**
+ * Delegación de eventos para los botones Editar/Eliminar/Completar.
  */
 export function manejarClickCard(e) {
     const btn = e.target.closest('button');
@@ -305,8 +385,9 @@ export function manejarClickCard(e) {
     const tareaId = card.dataset.id;
     const action = btn.dataset.action;
 
-    if (action === 'edit' && tareaId) { e.preventDefault(); manejarClickEditar(tareaId); }
-    if (action === 'delete' && tareaId) { e.preventDefault(); manejarClickEliminar(tareaId); }
+    if (action === 'edit'     && tareaId) { e.preventDefault(); manejarClickEditar(tareaId); }
+    if (action === 'delete'   && tareaId) { e.preventDefault(); manejarClickEliminar(tareaId); }
+    if (action === 'complete' && tareaId) { e.preventDefault(); manejarClickCompletar(tareaId, btn); }
 }
 
 
@@ -389,8 +470,9 @@ export async function handleFormSubmit(event) {
     }
 
     // Validar coherencia de documento con usuario cargado
+    // Solo aplica cuando el input de documento existe (form_admin_task no lo tiene)
     const usuarioActual = getCurrentUser();
-    if (!editandoTareaId && usuarioActual && String(usuarioActual.documento) !== String(userID)) {
+    if (!editandoTareaId && usuarioActual && dom.userIDInput && String(usuarioActual.documento) !== String(userID)) {
         showError(dom.userIDError, dom.userIDInput, 'El documento no coincide con el usuario cargado');
         setCurrentUser(null);
         deshabilitarFormularioTareas();
@@ -398,9 +480,14 @@ export async function handleFormSubmit(event) {
     }
 
     // ── Validación pura (devuelve objeto, no toca el DOM) ──
+    // Si no hay input de documento/nombre (form admin), usar los del usuario de sesión
     const valores = {
-        idVal: dom.userIDInput?.value.trim() ?? '',
-        nameVal: dom.userNameInput?.value.trim() ?? '',
+        idVal: dom.userIDInput
+            ? (dom.userIDInput.value.trim())
+            : (getCurrentUser()?.documento ?? ''),
+        nameVal: dom.userNameInput
+            ? (dom.userNameInput.value.trim())
+            : (getCurrentUser()?.nombre_completo ?? ''),
         taskTitleVal: dom.taskNameInput?.value.trim() ?? '',
         taskStatusVal: dom.taskStatusInput?.value ?? '',
         taskDescVal: dom.userTareaInput?.value.trim() ?? ''
@@ -440,11 +527,23 @@ export async function handleFormSubmit(event) {
 
             // ── Flujo POST (crear) ─────────────────────────────
         } else {
-            await crearTarea(taskTitle, taskDesc, taskStatus);
+            const tareaCreada = await crearTarea(taskTitle, taskDesc, taskStatus);
 
-            if (dom.taskNameInput) dom.taskNameInput.value = '';
+            // Asignar usuarios si estamos en form_admin_task (multi-select presente)
+            if (dom.usuariosAsignadosEl && tareaCreada?.id) {
+                const selectedIds = Array.from(dom.usuariosAsignadosEl.selectedOptions)
+                    .map(opt => opt.value);
+                if (selectedIds.length > 0) {
+                    await asignarUsuariosATarea(tareaCreada.id, selectedIds);
+                }
+            }
+
+            if (dom.taskNameInput)  dom.taskNameInput.value  = '';
             if (dom.userTareaInput) dom.userTareaInput.value = '';
             if (dom.taskStatusInput) dom.taskStatusInput.value = 'pendiente';
+            if (dom.usuariosAsignadosEl) {
+                Array.from(dom.usuariosAsignadosEl.options).forEach(o => o.selected = false);
+            }
             alertNotiExito();
 
             // Recargar para sincronizar contador desde el backend
@@ -478,7 +577,7 @@ export function filtrarTareas(event) {
         // Ejemplo: 'en proceso' -> 'en-proceso'
         const expectedClass = filtro.replace(' ', '-');
 
-        if (filtro === 'todas' || statusEl.classList.contains(expectedClass)) {
+        if (filtro === '' || filtro === 'todas' || statusEl.classList.contains(expectedClass)) {
             card.classList.remove('hidden');
             tareasVisibles++;
         } else {
@@ -489,7 +588,7 @@ export function filtrarTareas(event) {
     // Actualizamos el contador UI localmente (opcional pero ayuda al UX del filtro)
     // Opcionalmente podemos dejar el total o mostrar "(X filtradas de Y)"
     if (dom.tareaCountEl) {
-        if (filtro === 'todas') {
+        if (filtro === '' || filtro === 'todas') {
             updateTareaCount(cards.length);
         } else {
             dom.tareaCountEl.textContent = `${tareasVisibles} Filtradas de ${cards.length}`;
@@ -580,4 +679,92 @@ export function ordenarTareas() {
 
     // Reinsertar en el DOM en el nuevo orden
     cards.forEach(card => dom.tareasContainerEl.appendChild(card));
+}
+
+export function crearControlesFiltroyOrdenamiento() {
+    const messagesHeader = document.querySelector('.messages-header');
+    if (!messagesHeader) {
+        console.error('❌ Error: No se encontró .messages-header');
+        return;
+    }
+
+    let actionsDiv = messagesHeader.querySelector('.messages-header__actions');
+    if (!actionsDiv) {
+        actionsDiv = document.createElement('div');
+        actionsDiv.className = 'messages-header__actions';
+        messagesHeader.appendChild(actionsDiv);
+    }
+
+    actionsDiv.innerHTML = '';
+
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'messages-header__controls';
+
+    // CREAR SELECT DE FILTRO
+    const filterSelect = document.createElement('select');
+    filterSelect.id = 'filterField';
+    filterSelect.className = 'messages-filter';
+    filterSelect.title = 'Filtrar tareas por estado';
+
+    const filterOptions = [
+        { value: '', text: 'Todos' },
+        { value: 'pendiente', text: 'Pendiente' },
+        { value: 'en proceso', text: 'En proceso' },
+        { value: 'completada', text: 'Completada' }
+    ];
+
+    filterOptions.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        filterSelect.appendChild(option);
+    });
+
+    controlsDiv.appendChild(filterSelect);
+
+    // CREAR CONTENEDOR DE ORDENAMIENTO
+    const sortContainer = document.createElement('div');
+    sortContainer.className = 'messages-sort-container';
+
+    const sortSelect = document.createElement('select');
+    sortSelect.id = 'sortField';
+    sortSelect.className = 'messages-sort-select';
+    sortSelect.title = 'Ordenar por criterio';
+
+    const sortOptions = [
+        { value: 'fecha', text: 'Fecha' },
+        { value: 'estado', text: 'Estado' },
+        { value: 'nombre', text: 'Nombre' }
+    ];
+
+    sortOptions.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.text;
+        sortSelect.appendChild(option);
+    });
+
+    sortContainer.appendChild(sortSelect);
+
+    const sortButton = document.createElement('button');
+    sortButton.id = 'sortBtn';
+    sortButton.type = 'button';
+    sortButton.className = 'btn btn--sort';
+    sortButton.title = 'Cambiar dirección de ordenamiento';
+    sortButton.textContent = 'Ordenar ↓';
+    sortButton.dataset.dir = 'desc';
+
+    sortContainer.appendChild(sortButton);
+
+    controlsDiv.appendChild(sortContainer);
+    actionsDiv.appendChild(controlsDiv);
+
+    const tareaCountEl = document.getElementById('tareaCount');
+    const exportBtn = document.getElementById('exportBtn');
+
+    if (tareaCountEl && !actionsDiv.contains(tareaCountEl)) {
+        actionsDiv.appendChild(tareaCountEl);
+    }
+
+    console.log('Controles de filtrado y ordenamiento creados');
 }
