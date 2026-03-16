@@ -5,6 +5,7 @@
  */
 
 export { createCardTarea, actualizarCardEnDOM } from './cardTarea.js';
+export { createCardPerfil } from './cardPerfil.js';
 export { showError, clearError, mostrarErroresFormulario } from './errores.js';
 export { mostrarNotificacion, alertNotiExito, alertNotiInfo, alertNotiError } from './notificaciones.js';
 
@@ -19,8 +20,10 @@ export {
     deshabilitarFormularioTareas,
     updateTareaCount,
     populateUserSuggestions,
+    populateDocSuggestions,
     filtrarTareas,
-    ordenarTareas
+    ordenarTareas,
+    crearControlesFiltroyOrdenamiento
 } from './formulario.js';
 
 export { descargarArchivoJSON } from './descarga.js';

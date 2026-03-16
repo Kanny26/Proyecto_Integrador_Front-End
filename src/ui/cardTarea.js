@@ -19,12 +19,13 @@ import { getInitials, getCurrentTimestamp } from '../utils/index.js';
  * @param {string}        userName
  * @param {string}        taskTitle
  * @param {string}        taskDesc
- * @param {string}        status       - 'activa' | 'inactiva'
+ * @param {string}        status       - 'pendiente' | 'en proceso' | 'completada'
  * @param {string}        storedFecha
  * @param {string}        documento
+ * @param {boolean}       modoUsuario  - true: muestra botón Completar; false: muestra Editar/Eliminar
  * @returns {HTMLElement}
  */
-export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, status, storedFecha, documento) {
+export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, status, storedFecha, documento, modoUsuario = false) {
 
     const card = document.createElement('div');
     card.className = 'tarea-card';
@@ -78,20 +79,31 @@ export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, 
     const botones = document.createElement('div');
     botones.className = 'tarea-card__botones';
 
-    const eliminar = document.createElement('button');
-    eliminar.type = 'button';
-    eliminar.className = 'tarea-card__eliminar';
-    eliminar.textContent = 'Eliminar';
-    eliminar.dataset.action = 'delete';
+    if (modoUsuario) {
+        const completar = document.createElement('button');
+        completar.type = 'button';
+        completar.className = 'tarea-card__completar';
+        completar.dataset.action = 'complete';
+        const yaCompletada = (status || '').toLowerCase() === 'completada';
+        completar.textContent = yaCompletada ? 'Completada ✓' : 'Marcar completada';
+        completar.disabled = yaCompletada;
+        botones.appendChild(completar);
+    } else {
+        const eliminar = document.createElement('button');
+        eliminar.type = 'button';
+        eliminar.className = 'tarea-card__eliminar';
+        eliminar.textContent = 'Eliminar';
+        eliminar.dataset.action = 'delete';
 
-    const editar = document.createElement('button');
-    editar.type = 'button';
-    editar.className = 'tarea-card__editar';
-    editar.textContent = 'Editar';
-    editar.dataset.action = 'edit';
+        const editar = document.createElement('button');
+        editar.type = 'button';
+        editar.className = 'tarea-card__editar';
+        editar.textContent = 'Editar';
+        editar.dataset.action = 'edit';
 
-    botones.appendChild(eliminar);
-    botones.appendChild(editar);
+        botones.appendChild(eliminar);
+        botones.appendChild(editar);
+    }
 
     card.appendChild(header);
     card.appendChild(titleEl);
