@@ -42,7 +42,7 @@ export async function createUser(usuario) {
 export async function updateUser(id, nuevosDatos) {
     try {
         const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-            method: 'PATCH',
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(nuevosDatos)
         });
@@ -90,7 +90,7 @@ export async function deleteUser(id) {
  */
 export async function toggleUserStatus(id, estadoActual) {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/users/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ activo: !estadoActual })

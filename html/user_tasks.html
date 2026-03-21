@@ -4,27 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestion de Tareas</title>
-    <link rel="stylesheet" href="../styles.css">
+    <title>Mis Tareas</title>
+    <link rel="stylesheet" href="../src/styles.css">
 </head>
 
 <body>
+    <!-- Navbar con saludo y cerrar sesión -->
+    <nav class="navbar">
+        <span class="navbar__brand">📋 Mis Tareas</span>
+        <div class="navbar__right">
+            <span class="navbar__user" id="navUserName"></span>
+            <button class="btn--logout" id="logoutBtn">Cerrar sesión</button>
+        </div>
+    </nav>
+
     <div class="container">
-        <!-- Encabezado principal -->
         <header class="header">
             <h1 class="header__title">Mis Tareas Registradas</h1>
         </header>
-
-        <!-- Card de perfil del usuario -->
-        <div id="perfilContainer"></div>
 
         <!-- Área de mensajes -->
         <section class="messages-section">
             <div class="messages-header">
                 <h2 class="messages-header__title">Tareas Publicadas</h2>
                 <span class="messages-header__count" id="tareaCount">0 Tareas</span>
-                <div class="messages-header__actions">
-                </div>
+                <div class="messages-header__actions"></div>
             </div>
             <div class="messages-export-container">
                 <button type="button" class="btn btn--export" id="exportBtn" title="Exportar tareas a JSON">
@@ -33,26 +37,25 @@
                 </button>
             </div>
             <div id="tareasContainer" class="messages-container">
-                <!-- Los mensajes se agregarán aquí dinámicamente -->
                 <div class="messages-empty" id="emptyState">
-                    <svg class="messages-empty__icon" width="64" height="64" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor">
+                    <svg class="messages-empty__icon" width="64" height="64"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
                     <p class="messages-empty__text">Aún no hay tareas</p>
-                    <p class="messages-empty__subtext">Completa el formulario para agregar tu primera tarea</p>
-
+                    <p class="messages-empty__subtext">Aún no tienes tareas asignadas</p>
                 </div>
-
             </div>
         </section>
-        <!-- Footer informativo -->
+
         <footer class="footer">
             <p class="footer__text">Ejercicio de manipulación del DOM | SENA - Desarrollo Web</p>
         </footer>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script type="module" src="../main.js"></script>
+    <script type="module" src="../src/ui/userInit.js"></script>
+    <script type="module" src="../src/main.js"></script>
 </body>
 
 </html>

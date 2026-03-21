@@ -51,7 +51,7 @@
 
 .tarea-card__timestamp {
     font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
+    color: var(--color-text-tertiary);
 }
 
 .tarea-card__title {
@@ -128,6 +128,28 @@
     color: white;
 }
 
+.tarea-card__completar {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.tarea-card__completar:hover:not(:disabled) {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.tarea-card__completar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* ============================================
    COMPONENTE: perfil-card
    ============================================ */
@@ -182,4 +204,193 @@
 .perfil-card__logout:hover {
     background-color: #c53030;
     transform: translateY(-1px);
+}
+
+/* ============================================
+   COMPONENTE: users-table (panel admin)
+   ============================================ */
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+}
+
+.users-table th {
+    text-align: left;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-gray-50);
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-semibold);
+    border-bottom: 2px solid var(--color-gray-200);
+}
+
+.users-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-gray-100);
+    color: var(--color-text-primary);
+    vertical-align: middle;
+}
+
+.users-table tr:hover td {
+    background-color: var(--color-gray-50);
+}
+
+.users-table__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.estado--activo {
+    display: inline-block;
+    padding: 2px var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.estado--inactivo {
+    display: inline-block;
+    padding: 2px var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* ============================================
+   LAYOUT: navbar y tabs (panel admin / user_tasks)
+   ============================================ */
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-gray-200);
+    margin-bottom: 1.5rem;
+}
+
+.navbar__brand {
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+}
+
+.navbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.navbar__user {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.btn--logout {
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--color-error);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    transition: background-color var(--transition-base), transform var(--transition-base);
+}
+
+.btn--logout:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.tabs {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--color-gray-200);
+}
+
+.tab-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: color var(--transition-base), border-color var(--transition-base);
+}
+
+.tab-btn.active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* ============================================
+   COMPONENTE: checkboxes de usuarios (admin)
+   ============================================ */
+
+.usuarios-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    background: var(--color-gray-50);
+}
+
+.usuario-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.usuario-checkbox-item:hover {
+    background: var(--color-primary-lighter);
+}
+
+.usuario-checkbox-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.usuario-checkbox-item label {
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    user-select: none;
+}
+
+.usuarios-hint {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--spacing-xs);
 }

@@ -138,7 +138,7 @@ export async function cargarTareas() {
  * @param {string} status
  * @returns {Promise<Object>} Tarea registrada con ID asignado
  */
-export async function crearTarea(title, description, status) {
+export async function crearTarea(title, description, status, usuariosAsignados = []) {
     if (!_currentUser) throw new Error('No hay usuario activo para asignar la tarea');
 
     const nuevaTarea = {
@@ -148,7 +148,8 @@ export async function crearTarea(title, description, status) {
         title,
         description,
         status,
-        fecha: getCurrentTimestamp()
+        fecha: getCurrentTimestamp(),
+        ...(usuariosAsignados.length > 0 && { usuariosAsignados })
     };
 
     return await postTarea(nuevaTarea);

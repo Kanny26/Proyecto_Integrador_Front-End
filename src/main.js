@@ -62,6 +62,7 @@ const dom = {
     usersList:             document.getElementById('usersList'),
     emptyStateEl:          document.getElementById('emptyState'),
     filterField:           document.getElementById('filterField'),
+    filterUserEl:          document.getElementById('filterUser'),
     sortFieldEl:           document.getElementById('sortField'),
     sortBtnEl:             document.getElementById('sortBtn'),
     docsList:              document.getElementById('docsList'),
@@ -83,9 +84,6 @@ dom.userTareaInput?.addEventListener('input', handleInputChange);
 dom.taskStatusInput?.addEventListener('change', handleInputChange);
 dom.tareasContainerEl?.addEventListener('click', manejarClickCard);
 dom.exportBtnEl?.addEventListener('click', handleExportTasks);
-dom.filterField?.addEventListener('change', filtrarTareas);
-dom.sortFieldEl?.addEventListener('change', ordenarTareas);
-dom.sortBtnEl?.addEventListener('click', ordenarTareas);
 
 dom.userNameInput?.addEventListener('focus', () => {
     const idVal = dom.userIDInput?.value.replace(/\D+/g, '') || '';
@@ -145,14 +143,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { setCurrentUser(JSON.parse(storedUser)); } catch (_) {}
     }
 
-    crearControlesFiltroyOrdenamiento();
-    dom.filterField = document.getElementById('filterField');
-    dom.sortFieldEl = document.getElementById('sortField');
-    dom.sortBtnEl   = document.getElementById('sortBtn');
-
-    dom.filterField?.addEventListener('change', filtrarTareas);
-    dom.sortFieldEl?.addEventListener('change', ordenarTareas);
-    dom.sortBtnEl?.addEventListener('click', ordenarTareas);
+    await crearControlesFiltroyOrdenamiento();
+    // Los listeners de filterField, filterUser, sortField y sortBtn
+    // se registran dentro de crearControlesFiltroyOrdenamiento()
+    // sobre los elementos reales, evitando el problema de referencias null.
 
     // ── Card de perfil ────────────────────────────────────
     const perfilContainer = document.getElementById('perfilContainer');
@@ -165,24 +159,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         perfilContainer.appendChild(cardPerfil);
     }
 
-    // ── Poblar select de usuarios (form_admin_task.html) ──
-    if (dom.usuariosAsignadosEl) {
+    // ── Poblar checkboxes y select oculto de usuarios (form_admin_task.html) ──
+    const checkboxList = document.getElementById('usuariosCheckboxList');
+    if (dom.usuariosAsignadosEl && checkboxList) {
         try {
             const usuarios = await cargarUsuarios();
             usuarios.forEach(u => {
+                // Agregar opción al select oculto
                 const opt = document.createElement('option');
-                opt.value       = u.id;
-                opt.textContent = `${u.nombre_completo} (${u.documento})`;
+                opt.value = u.id;
                 dom.usuariosAsignadosEl.appendChild(opt);
+
+                // Crear checkbox visible
+                const item = document.createElement('div');
+                item.className = 'usuario-checkbox-item';
+
+                const cb = document.createElement('input');
+                cb.type  = 'checkbox';
+                cb.id    = `user-cb-${u.id}`;
+                cb.value = u.id;
+
+                const lbl = document.createElement('label');
+                lbl.htmlFor     = `user-cb-${u.id}`;
+                lbl.textContent = `${u.nombre_completo} (${u.documento})`;
+
+                item.appendChild(cb);
+                item.appendChild(lbl);
+                checkboxList.appendChild(item);
             });
         } catch (err) {
-            console.error('Error al cargar usuarios para el select:', err);
+            console.error('Error al cargar usuarios para los checkboxes:', err);
         }
     }
-
     init(dom);
-    deshabilitarFormularioTareas();
-    updateTareaCount(0);
-    inicializarApp();
-
+        deshabilitarFormularioTareas();
+        updateTareaCount(0);
+        if (dom.tareasContainerEl) {
+            inicializarApp();
+        }
 });

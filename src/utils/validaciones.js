@@ -93,7 +93,7 @@ export function validateForm(valores, modoEdicion, currentUser) {
     }
 
     if (!['pendiente', 'en proceso', 'completada'].includes(taskStatusVal)) {
-        errors.taskStatus = 'Estado inválido';
+        errors.taskStatus = 'Selecciona un estado válido: Pendiente, En proceso o Completada';
     }
 
     if (!isValidInput(taskDescVal)) {
