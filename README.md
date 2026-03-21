@@ -167,4 +167,4 @@ El proyecto sigue el flujo de trabajo **Git Flow**:
 
 ---
 
-*SENA — Centro de la Industria, la Empresa y los Servicios (CIMI)*
+*SENA — Centro industrial de mantenimiento integral (CIMI)*
