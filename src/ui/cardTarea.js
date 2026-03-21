@@ -32,6 +32,11 @@ export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, 
     card.dataset.id = tareaId;
     card.dataset.documento = documento || '';
 
+    // Garantizar que userName nunca sea undefined/null/"undefined"
+    const safeUserName = (userName && userName !== 'undefined' && userName !== 'null')
+        ? userName
+        : 'Usuario';
+
     // ── Header: avatar + nombre + fecha ──────────────────
     const header = document.createElement('div');
     header.className = 'tarea-card__header';
@@ -41,11 +46,11 @@ export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, 
 
     const avatar = document.createElement('div');
     avatar.className = 'tarea-card__avatar';
-    avatar.textContent = getInitials(userName);
+    avatar.textContent = getInitials(safeUserName);
 
     const usernameSpan = document.createElement('span');
     usernameSpan.className = 'tarea-card__username';
-    usernameSpan.textContent = userName;
+    usernameSpan.textContent = safeUserName;
 
     userWrap.appendChild(avatar);
     userWrap.appendChild(usernameSpan);

@@ -15,8 +15,6 @@
     --color-error: #ef4444;
     --color-warning: #f59e0b;
     --color-info: #3b82f6;
-    --color-eliminar: #e02424;
-    --color-editar: #4059e5;
 
     /* Escala de grises */
     --color-gray-50: #f9fafb;
@@ -34,6 +32,7 @@
     --color-background: #ffffff;
     --color-background-secondary: var(--color-gray-50);
     --color-surface: #ffffff;
+    --color-border: var(--color-gray-200);
 
     /* Colores de texto */
     --color-text-primary: var(--color-gray-900);
@@ -141,6 +140,11 @@ body {
     padding: var(--spacing-lg);
 }
 
+/* Panel admin y user_tasks: sin padding en body para que el navbar ocupe el ancho completo */
+body:has(.navbar) {
+    padding: 0;
+}
+
 /* ============================================
    LAYOUT PRINCIPAL
    ============================================ */
@@ -148,6 +152,12 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
+    padding: 0 var(--spacing-lg) var(--spacing-lg);
+}
+
+/* El panel admin necesita más ancho para la tabla de usuarios */
+.container--wide {
+    max-width: 1100px;
 }
 
 /* ============================================
@@ -294,45 +304,6 @@ body {
 }
 
 /* Controles de Filtros y Ordenamiento */
-.messages-filter {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--font-size-sm);
-    min-width: 150px;
-    max-width: max-content;
-    cursor: pointer;
-    border-radius: var(--radius-full);
-}
-
-.messages-sort-container {
-    display: flex;
-    gap: var(--spacing-xs);
-    margin-right: auto;
-    align-items: center;
-}
-
-.messages-sort-select {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--font-size-sm);
-    min-width: 140px;
-    max-width: max-content;
-    cursor: pointer;
-    border-radius: var(--radius-md);
-}
-
-.btn--sort {
-    padding: var(--spacing-xs) var(--spacing-md);
-    font-size: var(--font-size-sm);
-    background-color: var(--color-gray-100);
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: background-color var(--transition-base);
-}
-
-.btn--sort:hover {
-    background-color: var(--color-gray-200);
-}
 
 .messages-container {
     display: flex;

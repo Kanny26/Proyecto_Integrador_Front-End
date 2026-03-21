@@ -38,27 +38,16 @@ export const alertNotiExito = () => {
     });
 }
 
-export const alertNotiInfo = (dom) => {
-    Swal.fire({
-        title: "<strong>vas a editar una tarea</strong>",
+export const alertNotiInfo = () => {
+    return Swal.fire({
+        title: "<strong>Vas a editar una tarea</strong>",
         icon: "info",
-        html: `
-            Los datos editados se actualizaran y veras los nuevos 
-        `,
+        html: `Los datos editados se actualizarán y verás los nuevos cambios reflejados.`,
         showCloseButton: true,
         showCancelButton: true,
         focusConfirm: false,
-        confirmButtonText: `
-            <i class="fa fa-thumbs-up"></i> Si, continuar!
-        `,
-        cancelButtonText: `
-            <i class="fa fa-thumbs-down"></i> No, Cancelar
-        `
-        }).then((result) => {
-        // Si el usuario hace click en CANCELAR
-        if (result.dismiss === Swal.DismissReason.cancel) {
-            dom.tareaFormEl.reset();  // el formulario se limpia 
-        }
+        confirmButtonText: `Sí, continuar`,
+        cancelButtonText: `Cancelar`
     });
 }
 
@@ -79,25 +68,7 @@ export const alertEditOk = () => {
     });
 }
 
-export const alertDeleteOk = () => {
-    Swal.fire({
-  title: "Estas seguro de eliminar?",
-  text: "No se podra revertir esta accion",
-  icon: "warning",
-  showCancelButton: true,
-  confirmButtonColor: "#3085d6",
-  cancelButtonColor: "#d33",
-  confirmButtonText: "Si , Eliminalo!"
-}).then((result) => {
-  if (result.isConfirmed) {
-    Swal.fire({
-      title: "Eliminado!",
-      text: "Tu archivo ha sido eliminado.",
-      icon: "correctamente"
-    });
-  }
-});
-}
+
 
 /**
  * Muestra alerta de confirmación de eliminación con SweetAlert2.
