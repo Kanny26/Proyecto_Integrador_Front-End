@@ -155,14 +155,6 @@ El proyecto sigue una separación estricta de responsabilidades en tres capas:
 
 Todas las funcionalidades utilizan **ES Modules** (`import` / `export`) sin variables globales.
 
----
-
-## Ramas del Repositorio
-
-| Rama | Descripción |
-|------|-------------|
-| `main` | Rama principal — versión estable del proyecto |
-| `develop` | Rama de desarrollo — integración de funcionalidades |
 
 ---
 
