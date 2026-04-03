@@ -204,13 +204,19 @@
              * Prioridad: nombre_completo guardado → primer usuario asignado → fallback
              */
             function resolverNombre(tarea) {
+                if (Array.isArray(tarea.usuariosAsignados) && tarea.usuariosAsignados.length > 0) {
+                    const nombres = tarea.usuariosAsignados
+                        .map(id => usuarioMap.get(String(id))?.nombre_completo)
+                        .filter(Boolean);
+                    
+                    if (nombres.length === 1) return nombres[0];
+                    if (nombres.length > 1) return `${nombres[0]} + ${nombres.length - 1} más`;
+                }
+
                 if (tarea.nombre_completo && tarea.nombre_completo !== 'undefined') {
                     return tarea.nombre_completo;
                 }
-                if (Array.isArray(tarea.usuariosAsignados) && tarea.usuariosAsignados.length > 0) {
-                    const u = usuarioMap.get(String(tarea.usuariosAsignados[0]));
-                    if (u) return u.nombre_completo;
-                }
+                
                 if (tarea.userId) {
                     const u = usuarioMap.get(String(tarea.userId));
                     if (u) return u.nombre_completo;
@@ -219,11 +225,11 @@
             }
 
             function resolverDocumento(tarea) {
-                if (tarea.documento && tarea.documento !== 'undefined') return tarea.documento;
                 if (Array.isArray(tarea.usuariosAsignados) && tarea.usuariosAsignados.length > 0) {
                     const u = usuarioMap.get(String(tarea.usuariosAsignados[0]));
                     if (u) return u.documento;
                 }
+                if (tarea.documento && tarea.documento !== 'undefined') return tarea.documento;
                 if (tarea.userId) {
                     const u = usuarioMap.get(String(tarea.userId));
                     if (u) return u.documento;
@@ -268,7 +274,8 @@
                     tarea.status,
                     tarea.fecha,
                     resolverDocumento(tarea),
-                    modoUsuario
+                    modoUsuario,
+                    tarea.usuariosAsignados || []
                 );
                 dom.tareasContainerEl.appendChild(card);
             });
@@ -374,6 +381,29 @@
 
         mostrarBotonCancelar();
         habilitarFormularioTareas();
+
+        // -- Pre-seleccionar los usuarios de la tarea --
+        try {
+            const rawUsuarios = card.dataset.usuarios || '[]';
+            const asignadosIds = JSON.parse(rawUsuarios).map(id => String(id));
+            
+            const checkboxList = document.getElementById('usuariosCheckboxList');
+            if (checkboxList) {
+                const checkboxes = checkboxList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    const isAsignado = asignadosIds.includes(String(cb.value));
+                    cb.checked = isAsignado;
+                    
+                    // También marcar en el select oculto para consistencia
+                    if (dom.usuariosAsignadosEl) {
+                        const opt = Array.from(dom.usuariosAsignadosEl.options).find(o => String(o.value) === String(cb.value));
+                        if (opt) opt.selected = isAsignado;
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Error al pre-seleccionar usuarios:', e);
+        }
 
         const usuario = await buscarUsuario(documento);
         if (usuario) setCurrentUser(usuario);
@@ -582,10 +612,15 @@
 
             // ── Flujo PATCH (actualizar) ───────────────────────
             if (editandoTareaId) {
+                const selectedIds = dom.usuariosAsignadosEl 
+                    ? Array.from(dom.usuariosAsignadosEl.selectedOptions).map(o => o.value)
+                    : undefined;
+
                 const tareaActualizada = await editarTarea(editandoTareaId, {
                     title: taskTitle,
                     description: taskDesc,
-                    status: taskStatus
+                    status: taskStatus,
+                    usuariosAsignados: selectedIds
                 });
                 actualizarCardEnDOM(editandoTareaId, tareaActualizada);
 

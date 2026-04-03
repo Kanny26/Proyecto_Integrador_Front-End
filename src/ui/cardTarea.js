@@ -25,12 +25,13 @@ import { getInitials, getCurrentTimestamp } from '../utils/index.js';
  * @param {boolean}       modoUsuario  - true: muestra botón Completar; false: muestra Editar/Eliminar
  * @returns {HTMLElement}
  */
-export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, status, storedFecha, documento, modoUsuario = false) {
+export function createCardTarea(tareaId, userId, userName, taskTitle, taskDesc, status, storedFecha, documento, modoUsuario = false, usuariosAsignados = []) {
 
     const card = document.createElement('div');
     card.className = 'tarea-card';
     card.dataset.id = tareaId;
     card.dataset.documento = documento || '';
+    card.dataset.usuarios = JSON.stringify(usuariosAsignados);
 
     // Garantizar que userName nunca sea undefined/null/"undefined"
     const safeUserName = (userName && userName !== 'undefined' && userName !== 'null')
