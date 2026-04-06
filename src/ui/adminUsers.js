@@ -169,7 +169,7 @@ async function abrirModalNuevoUsuario() {
             <input id="swal-nombre"     class="swal2-input" placeholder="Nombre completo">
             <select id="swal-rol" class="swal2-select"
                     style="width:80%;margin:0.5em auto;display:block;padding:0.5em">
-                <option value="usuario">Usuario</option>
+                <option value="user">Usuario</option>
                 <option value="admin">Administrador</option>
             </select>
         `,
@@ -211,7 +211,7 @@ async function abrirModalEditarUsuario(usuario) {
                    value="${usuario.nombre_completo}">
             <select id="swal-rol" class="swal2-select"
                     style="width:80%;margin:0.5em auto;display:block;padding:0.5em">
-                <option value="usuario" ${!usuario.rol || usuario.rol === 'usuario' ? 'selected' : ''}>Usuario</option>
+                <option value="user" ${!usuario.rol || usuario.rol === 'user' ? 'selected' : ''}>Usuario</option>
                 <option value="admin"   ${usuario.rol === 'admin' ? 'selected' : ''}>Administrador</option>
             </select>
         `,

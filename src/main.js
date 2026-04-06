@@ -39,6 +39,8 @@ import {
     cargarUsuarios
 } from './services/index.js';
 
+import { loginUser } from './API/index.js';
+
 
 // ==========================================================
 // 2. SELECCIÓN DE ELEMENTOS DEL DOM
@@ -109,13 +111,9 @@ loginFormEl?.addEventListener('submit', async (e) => {
     }
 
     try {
-        const usuario = await buscarUsuario(documento);
+        const { token, usuario } = await loginUser(documento);
 
-        if (!usuario) {
-            if (loginIDError) loginIDError.textContent = 'Usuario no encontrado';
-            return;
-        }
-
+        sessionStorage.setItem('token',        token);
         sessionStorage.setItem('userName',     usuario.nombre_completo);
         sessionStorage.setItem('currentUser',  JSON.stringify(usuario));
 
