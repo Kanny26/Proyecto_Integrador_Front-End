@@ -16,5 +16,5 @@ export { postTarea }                                    from './postTareas.js';
 export { actualizarTarea }                              from './updateTarea.js';
 export { eliminarTarea }                                from './deleteTarea.js';
 export { getUsuarios, getUsuarioPorDocumento }          from './getUsuario.js';
-export { createUser, updateUser, deleteUser, toggleUserStatus } from './users.js';
+export { loginUser, createUser, updateUser, deleteUser, toggleUserStatus } from './users.js';
 export { assignUsersToTask }                            from './assignTask.js';
